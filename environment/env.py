@@ -13,7 +13,7 @@ class env():
         and contains the main logic
 
         returns:
-        obs,reward,done,info
+        observation,reward,done and info
         """
         pass
 
@@ -25,9 +25,18 @@ class env():
 
     def reset(self):
         """
-        Resets the enviornment. For instance:
-        reset agent and objects 
+        Resets the enviornment to begin condition
+        
+        returns:
+        initial observation
         """
         pass 
 
 env = env()
+obs = env.reset()
+done = False
+while True:
+    env.render()
+    env.step(0)
+    if done:
+        env.reset()
