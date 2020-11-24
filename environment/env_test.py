@@ -1,11 +1,11 @@
 import pygame
-import humanAgent
+import manualAgent
 
 class env():
     
     def __init__(self):
         self.size = [600, 400]
-        self.agent = humanAgent.humanAgent([400,300],[20,20])
+        self.agent = manualAgent.manualAgent([400,300],[20,20])
         self.setup = True 
         self.goal = [290,50]
         
@@ -18,6 +18,7 @@ class env():
         returns:
         observation,reward,done and info
         """
+        self.agent.step(1)
         pass
 
     def render(self, mode='human'):
