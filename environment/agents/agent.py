@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod #needed to create abstract class 
+from math import sqrt 
 
 class agent(ABC):
     """
@@ -22,3 +23,8 @@ class agent(ABC):
     
     def get_size(self):
         return self.size
+
+    def dist_goal(self, goal_pos):
+        x,y =self.pos 
+        x2,y2 = goal_pos
+        return sqrt((x-x2)**2 + (y-y2)**2)

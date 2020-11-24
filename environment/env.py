@@ -1,11 +1,11 @@
 import pygame
-import humanAgent
+import manualAgent
 
 class env():
     
     def __init__(self):
         self.size = [600, 400]
-        self.agent = humanAgent.humanAgent([0,0],[400,400])
+        self.agent = manualAgent.manualAgent([0,0],[400,400])
 
     def step(self, action):
         """
@@ -13,7 +13,11 @@ class env():
         and contains the main logic
 
         returns:
-        observation,reward,done and info
+        observation: contains all info that the agent needs, so positions etc
+        reward: reward that the agent gets for performing the action
+        done: Boolean that indicates if episode is over, for instance if the agent 
+            "dies" or finishes the tasks
+        info: dictionary of extra info that can be used to debug
         """
         pass
 
