@@ -12,4 +12,4 @@ class ppoAgent(agents.agent.agent):
 
     
     def step(self, move):
-       self.update_pos([0,0])
+        self.update_pos(move)

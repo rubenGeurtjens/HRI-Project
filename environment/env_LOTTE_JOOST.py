@@ -1,6 +1,11 @@
 import pygame
 import manualAgent
 
+'''
+Deze file is waar jullie je crowd dingen in kunnen maken.
+'''
+
+
 class env():
     
     def __init__(self):
@@ -36,11 +41,4 @@ class env():
         """
         pass 
 
-env = env()
-obs = env.reset()
-done = False
-while True:
-    env.render()
-    env.step(0)
-    if done:
-        env.reset()
+

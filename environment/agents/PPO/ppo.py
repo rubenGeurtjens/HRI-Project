@@ -1,3 +1,14 @@
+import time
+import numpy as np
+import torch
+import torch.nn as nn
+from torch.optim import Adam
+from torch.nn import functional as F
+import numpy as np
+from torch.utils.data.sampler import BatchSampler, SubsetRandomSampler
+import math
+import os
+
 class PPO():
     """
     Class that contains the logic behind the proximal policy algorithm that was developed by openAI
@@ -66,7 +77,7 @@ class PPO():
 
                 #getting the actors loss
                 loss1 = ratio * sampled_advs
-                loss2 = torch.clamp(ratio, 1 - clip_value, 1 + clip_value) * sampled_advs
+                loss2 = torch.clamp(ratio, 1 - self.clip_value, 1 + self.clip_value) * sampled_advs
                 policy_loss = torch.min(loss1, loss2)
                 policy_loss = -policy_loss.mean()
 
@@ -76,7 +87,7 @@ class PPO():
                 value_loss = l1_loss(new_value, sampled_returns)
                 
                 #adding a small entropy bonus to encourage exploration
-                loss = policy_loss + value_loss - coeff_entropy * dist_entropy
+                loss = policy_loss + value_loss - self.coeff_entropy * dist_entropy
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
@@ -123,7 +134,11 @@ class PPO():
             value = value.item() 
             logprob = logprob.data.cpu().numpy()[0] #can't use .item() since there can be multiple values in the tensor
             action = action.data.cpu().numpy()[0]
-            next_obs, reward, done, info = env.step(action)
+
+            x = math.cos(action) 
+            y = math.sin(action)
+
+            next_obs, reward, done, info = env.step([x,y])
 
             observations.append(obs.data.cpu().numpy()[0])
                        
@@ -140,7 +155,7 @@ class PPO():
         else:
             obs = torch.from_numpy(obs).float().cuda()
             obs = obs.unsqueeze(0)
-            value, action, logprob, mu = policy(obs)
+            value, action, logprob, mu = self.policy(obs)
             last_value = value.data[0][0]
 
         observations = np.asarray(observations)

@@ -1,12 +1,12 @@
 import pygame
-from agents import manualAgent 
-
+from agents import manualAgent, ppoAgent 
+import numpy as np
 
 class env():
     
     def __init__(self):
         self.size = [600, 400]
-        self.agent = manualAgent.manualAgent([400,300],[20,20])
+        self.agent = ppoAgent.ppoAgent([200,300],[20,20])
         self.setup = True 
         self.goal = [290,50]
         self.clock = pygame.time.Clock()
@@ -24,8 +24,17 @@ class env():
             "dies" or finishes the tasks
         info: dictionary of extra info that can be used to debug
         """
-        self.agent.step(1)
-        return self.goal, 10, False, {}
+        self.agent.step(action)
+        
+        done = False
+        reward = 0
+        dist = self.agent.dist_goal(self.goal)
+        if dist < 10:
+            print('finished!!!!')
+            reward = 500
+            done = True 
+        obs=np.concatenate((self.agent.get_pos(), self.goal))
+        return obs, -0.1*dist+reward, done, {}
 
     def render(self, mode='human'):
         """
@@ -40,8 +49,6 @@ class env():
         self._draw_goal()
         pygame.display.update()
 
-        print(self.agent.dist_goal(self.goal))
-
         self.clock.tick(60)
 
     def reset(self):
@@ -51,7 +58,9 @@ class env():
         returns:
         initial observation
         """
-        pass 
+        self.agent.pos = [np.random.randint(0,600),np.random.randint(0,400)]
+
+        return np.concatenate((self.agent.get_pos(), self.goal))
 
     def _draw_agent(self):
         x,y = self.agent.get_pos()
@@ -63,11 +72,5 @@ class env():
         x,y = self.goal 
         rec = pygame.Rect(x,y,20,20)
         pygame.draw.rect(self.screen, (0,255,0), rec)
-
-env = env()
-obs = env.reset()
-while True:
-    env.render()
-    obs, r, done, info = env.step(0)
-    if done:
-        env.reset()
+    
+    
