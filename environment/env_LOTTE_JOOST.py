@@ -14,12 +14,14 @@ class env():
         self.agent = ppoAgent.ppoAgent([200,300],[20,20])
         self.setup = True
         self.goal1 = [100,50]
-        self.goal2 = [100,150]
-        self.goal3 = [100,250]
-        self.crowd = [(100, 50), (100,60)]
+        # self.goal2 = [100,150]
+        # self.goal3 = [100,250]
+        self.crowd = [(np.random.randint(0,600),np.random.randint(0,400)),
+                        (np.random.randint(0,600),np.random.randint(0,400))]
         self.clock = pygame.time.Clock()
+        self.done = False
 
-    def step(self, action):
+    def step(self):
         """
         Performs one update step
         and contains the main logic
@@ -31,18 +33,17 @@ class env():
             "dies" or finishes the tasks
         info: dictionary of extra info that can be used to debug
         """
-        
-        # self.agent.step(action)
-        #
-        # done = False
-        # reward = 0
-        # dist = self.agent.dist_goal(self.goal1)
-        # if dist < 10:
-        #     print('finished!!!!')
-        #     reward = 500
-        #     done = True
-        # obs=np.concatenate((self.agent.get_pos(), self.goal1))
-        # return obs, -0.1*dist+reward, done, {}
+
+        ## Hier moeten we die euclidean shit maken
+
+        for i, person in enumerate(self.crowd):
+            x, y = person
+            y = 1 * x + 11
+            if x > 600:
+                print("out of screen")
+                self.done = True
+            new_center = (x + 1, y)
+            self.crowd[i] = new_center
 
     def render(self, mode='human'):
         """
@@ -58,7 +59,7 @@ class env():
         self._draw_goal()
         pygame.display.update()
 
-        # self.clock.tick(60)
+        self.clock.tick(60)
         # pass
 
     def reset(self):
@@ -68,7 +69,6 @@ class env():
         returns:
         initial observation
         """
-        print("reset")
         self.agent.pos = [np.random.randint(0,600),np.random.randint(0,400)]
 
         return np.concatenate((self.agent.get_pos(), self.goal1))
@@ -81,25 +81,19 @@ class env():
 
     def _draw_goal(self):
         x1,y1 = self.goal1
-        x2,y2 = self.goal2
-        x3,y3 = self.goal3
         rec1 = pygame.Rect(x1,y1,20,20)
-        rec2 = pygame.Rect(x2,y2,20,20)
-        rec3 = pygame.Rect(x3,y3,20,20)
         pygame.draw.rect(self.screen, (0,255,0), rec1)
-        pygame.draw.rect(self.screen, (0,255,0), rec2)
-        pygame.draw.rect(self.screen, (0,255,0), rec3)
 
     def _draw_crowd(self):
         # surface, color, center, radius
-        for i in range(0,5):
-            center = (x, y)
-            pygame.draw.circle(self.screen, (0,0,255), center, 10)
+        # hier worden de locaties van de mensjes geupdate
+        for person in self.crowd:
+            pygame.draw.circle(self.screen, (0,0,255), person, 3)
 
 
 if __name__ == "__main__":
     env = env()
     env.reset()
-    while True:
+    while env.done != True:
         env.render()
-        env.step([0,0])
+        env.step()
