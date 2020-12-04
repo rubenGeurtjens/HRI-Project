@@ -1,5 +1,8 @@
 import pygame
+import random
+from pygame.math import Vector2
 import numpy as np
+from boids import Boid
 from agents import manualAgent, ppoAgent, greedyAgent
 
 '''
@@ -9,16 +12,28 @@ Deze file is waar jullie je crowd dingen in kunnen maken.
 class env():
 
     def __init__(self):
-        self.size = [600, 400]
+        self.width = 600
+        self.height = 400
+        self.size = [self.width, self.height]
         self.agent = manualAgent.manualAgent([200,300],[20,20])
         self.setup = True
         self.goal1 = [100,50]
         # self.goal2 = [100,150]
         # self.goal3 = [100,250]
-        self.crowd = [(np.random.randint(0,600),np.random.randint(0,400)),
-                        (np.random.randint(0,600),np.random.randint(0,400))]
+        self.crowd = [Boid(random.randint(0, 600), random.randint(0, 400), self.width, self.height) for _ in range(3)]
         self.clock = pygame.time.Clock()
         self.done = False
+
+    def edges(self):
+        if self.position.x > self.width:
+            self.position.x = 0
+        elif self.position.x < 0:
+            self.position.x = self.width
+
+        if self.position.y > self.height:
+            self.position.y = 0
+        elif self.position.y < 0:
+            self.position.y = self.height
 
     def step(self):
         """
@@ -33,16 +48,25 @@ class env():
         info: dictionary of extra info that can be used to debug
         """
 
-        ## Hier moeten we die euclidean shit maken
 
-        for i, person in enumerate(self.crowd):
-            x, y = person
-            y = 1 * x + 11
-            if x > 600:
-                print("out of screen")
-                self.done = True
-            new_center = (x + 1, y)
-            self.crowd[i] = new_center
+        # self.position += self.velocity
+        # self.velocity += self.acceleration
+        # #limit
+        # if np.linalg.norm(self.velocity) > self.max_speed:
+        #     self.velocity = self.velocity / np.linalg.norm(self.velocity) * self.max_speed
+        #
+        # self.acceleration = Vector2(*np.zeros(2))
+
+        ## Hier moeten we die boid shit maken
+        # print(self.crowd)
+        # for i, person in enumerate(self.crowd):
+        #     x, y = person
+        #     # y = 1 * x + 11
+        #     # if y > 600 or y < 0 or x > 400 or x < 0:
+        #     #     print("out of screen")
+        #     #     self.done = True
+        #     new_center = (x + 1, y)
+        #     self.crowd[i] = new_center
 
     def render(self, mode='human'):
         """
@@ -86,7 +110,8 @@ class env():
     def _draw_crowd(self):
         # surface, color, center, radius
         # hier worden de locaties van de mensjes geupdate
-        for person in self.crowd:
+        for boid in self.crowd:
+            person = boid.position
             pygame.draw.circle(self.screen, (0,0,255), person, 3)
 
 
