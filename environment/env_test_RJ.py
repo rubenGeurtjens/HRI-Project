@@ -67,7 +67,7 @@ class env():
         """
         self.agent.pos = [300,200]
 
-        x = np.random.randint(1)
+        x = np.random.randint(2)
 
         if x == 0:
             self.goal = [100,10]

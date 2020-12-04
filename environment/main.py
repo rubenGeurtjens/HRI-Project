@@ -22,10 +22,10 @@ if __name__ == '__main__':
     PPO = ppo.PPO(policy,opt,batch_size,nupdates,coeff_entropy,clip_value)
 
     save_weights = True 
-    load_policy = True
+    load_policy = False
 
     path = 'environment/models/'
-    agent_name = '1_goal_normalized_R'
+    agent_name = '2_goal_normalized_R'
 
     if load_policy:
         print("loading policy")

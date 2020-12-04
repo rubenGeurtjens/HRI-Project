@@ -136,20 +136,20 @@ class PPO():
             action = action.data.cpu().numpy()[0]
 
             #continouos controll
-            # x = math.cos(action) 
-            # y = math.sin(action)
+            x = math.cos(action) 
+            y = math.sin(action)
 
             #discrete 
-            action = action.clip(-2,2)
-            #print(action)
-            if action <= -1: # left
-                x,y = -1,0  
-            elif action <= 0: #up
-                x,y = 0,-1  
-            elif action <= 1: #right
-                x,y = 1,0
-            elif action <= 2: # down 
-                x,y = 0,1
+            # action = action.clip(-2,2)
+            # if action <= -1: # left
+            #     x,y = -1,0  
+            # elif action <= 0: #up
+            #     x,y = 0,-1  
+            # elif action <= 1: #right
+            #     x,y = 1,0
+            # elif action <= 2: # down 
+            #     x,y = 0,1
+
             next_obs, reward, done, info = env.step([x,y])
 
             observations.append(obs.data.cpu().numpy()[0])

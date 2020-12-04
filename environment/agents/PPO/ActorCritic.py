@@ -16,9 +16,9 @@ class MLP(nn.Module):
     def __init__(self, obs_space, action_space):
         super(MLP, self).__init__()
         # action network
-        self.act_fc1 = nn.Linear(obs_space, 84)
-        self.act_fc2 = nn.Linear(84, 168)
-        self.mu = nn.Linear(168, action_space)
+        self.act_fc1 = nn.Linear(obs_space, 24)
+        #self.act_fc2 = nn.Linear(84, 168)
+        self.mu = nn.Linear(24, action_space)
         self.mu.weight.data.mul_(0.1)
 
         #paramater so if MLP goes to GPU it joins
@@ -32,8 +32,8 @@ class MLP(nn.Module):
     def forward(self, x):
         act = self.act_fc1(x)
         act = torch.relu(act)
-        act = self.act_fc2(act)
-        act = torch.relu(act)
+        #act = self.act_fc2(act)
+        #act = torch.relu(act)
         mean = self.mu(act) 
         logstd = self.logstd.expand_as(mean)
         std = torch.exp(logstd)
