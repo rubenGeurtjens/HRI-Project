@@ -9,7 +9,7 @@ class ppoAgent(agents.agent.agent):
 
     def __init__(self,pos,size):
         super().__init__(pos,size) 
-
+        self.name = "ppo"
     
     def step(self, move):
         self.update_pos(move)

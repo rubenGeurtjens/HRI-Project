@@ -1,12 +1,13 @@
 import pygame
-from agents import manualAgent, ppoAgent
+from agents import manualAgent, ppoAgent, greedyAgent
 import numpy as np
 
 class env():
 
     def __init__(self):
         self.size = [600, 400]
-        self.agent = ppoAgent.ppoAgent([200,300],[20,20])
+        # self.agent = ppoAgent.ppoAgent([200,300],[20,20])
+        self.agent = greedyAgent.greedyAgent([200,300],[20,20])
         self.setup = True
         self.goal = [290,50]
         self.clock = pygame.time.Clock()
@@ -33,14 +34,21 @@ class env():
         done = x < 0 or x > self.size[0] or y < 0 or y > self.size[1]
 
         dist = self.agent.dist_goal(self.goal)
-        
+            
         if dist < 10:
             print('finished!!!!')
             done = True
 
         reward = dist / 634.113554 
 
-        obs=np.concatenate((self.agent.get_pos(), self.goal))
+        if self.agent.name == "ppo":
+            obs=np.concatenate((self.agent.get_pos(), self.goal))
+        
+        if self.agent.name == "greedy":
+            obs = [self.goal, [0,0,0]]
+
+
+
         return obs, -reward, done, {}
 
     def render(self, mode='human'):
@@ -76,8 +84,11 @@ class env():
             self.goal = [500,10]
         
         #self.agent.pos = [np.random.randint(0,600),np.random.randint(0,400)]
+        if self.agent.name == "ppo":
+            return np.concatenate((self.agent.get_pos(), self.goal))
 
-        return np.concatenate((self.agent.get_pos(), self.goal))
+        if self.agent.name == "greedy":
+            return [self.goal, [0,0,0]]
 
     def _draw_agent(self):
         x,y = self.agent.get_pos()

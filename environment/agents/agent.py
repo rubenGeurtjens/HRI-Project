@@ -24,7 +24,9 @@ class agent(ABC):
     def get_size(self):
         return self.size
 
-    def dist_goal(self, goal_pos):
-        x,y =self.pos 
+    def dist_goal(self, goal_pos , pos = []):
+        if pos == []:
+            pos = self.pos
+        x,y = pos
         x2,y2 = goal_pos
         return sqrt((x-x2)**2 + (y-y2)**2)
