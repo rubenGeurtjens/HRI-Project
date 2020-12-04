@@ -24,17 +24,24 @@ class env():
             "dies" or finishes the tasks
         info: dictionary of extra info that can be used to debug
         """
+        done = False
+
         self.agent.step(action)
 
-        done = False
-        reward = 0
+        x,y = self.agent.get_pos()
+
+        done = x < 0 or x > self.size[0] or y < 0 or y > self.size[1]
+
         dist = self.agent.dist_goal(self.goal)
+        
         if dist < 10:
             print('finished!!!!')
-            reward = 500
             done = True
+
+        reward = dist / 634.113554 
+
         obs=np.concatenate((self.agent.get_pos(), self.goal))
-        return obs, -0.1*dist+reward, done, {}
+        return obs, -reward, done, {}
 
     def render(self, mode='human'):
         """
@@ -49,7 +56,7 @@ class env():
         self._draw_goal()
         pygame.display.update()
 
-        self.clock.tick(60)
+        #self.clock.tick(60)
 
     def reset(self):
         """
@@ -58,7 +65,17 @@ class env():
         returns:
         initial observation
         """
-        self.agent.pos = [np.random.randint(0,600),np.random.randint(0,400)]
+        self.agent.pos = [300,200]
+
+        x = np.random.randint(1)
+
+        if x == 0:
+            self.goal = [100,10]
+
+        elif x == 1:
+            self.goal = [500,10]
+        
+        #self.agent.pos = [np.random.randint(0,600),np.random.randint(0,400)]
 
         return np.concatenate((self.agent.get_pos(), self.goal))
 

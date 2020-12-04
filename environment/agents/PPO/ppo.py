@@ -111,7 +111,6 @@ class PPO():
             values(numpy array): all the values the critic gave
             rewards(numpy array): all the rewards the agent collected
         """
-
         obs = env.reset()
         done = False
 
@@ -133,11 +132,24 @@ class PPO():
             value, action, logprob, mu = self.policy(obs) 
             value = value.item() 
             logprob = logprob.data.cpu().numpy()[0] #can't use .item() since there can be multiple values in the tensor
+            
             action = action.data.cpu().numpy()[0]
 
-            x = math.cos(action) 
-            y = math.sin(action)
+            #continouos controll
+            # x = math.cos(action) 
+            # y = math.sin(action)
 
+            #discrete 
+            action = action.clip(-2,2)
+            #print(action)
+            if action <= -1: # left
+                x,y = -1,0  
+            elif action <= 0: #up
+                x,y = 0,-1  
+            elif action <= 1: #right
+                x,y = 1,0
+            elif action <= 2: # down 
+                x,y = 0,1
             next_obs, reward, done, info = env.step([x,y])
 
             observations.append(obs.data.cpu().numpy()[0])

@@ -23,18 +23,24 @@ if __name__ == '__main__':
 
     save_weights = True 
     load_policy = True
+
+    path = 'environment/models/'
+    agent_name = '1_goal_normalized_R'
+
     if load_policy:
-        policy.load_state_dict(torch.load('HRI_test_500.pth'))
+        print("loading policy")
+        policy.load_state_dict(torch.load(path + agent_name+'.pth'))
 
 
     for epoch in range(1, max_epochs+1):
-        #show the agent every 200 epochs
+
         should_render = epoch % 200 == 0
-        #collecting one episode
+
         observations, actions, logprobs, returns, values, rewards = PPO.generate_episode(env, n_steps, should_render=should_render)
 
         memory = (actions, observations, values, logprobs, returns)
         PPO.update(memory)
         print(f'Episode {epoch}, reward is {rewards.sum()}')
         if epoch % 30 == 0:
-            torch.save(policy.state_dict(),  'HRI_test_500_random.pth')
+            print("saving policy")
+            torch.save(policy.state_dict(), path + agent_name + '.pth')
