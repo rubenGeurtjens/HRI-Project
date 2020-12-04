@@ -6,8 +6,8 @@ class env():
 
     def __init__(self):
         self.size = [600, 400]
-        # self.agent = ppoAgent.ppoAgent([200,300],[20,20])
-        self.agent = greedyAgent.greedyAgent([200,300],[20,20])
+        self.agent = ppoAgent.ppoAgent([200,300],[20,20])
+        # self.agent = greedyAgent.greedyAgent([200,300],[20,20])
         self.setup = True
         self.goal = [290,50]
         self.clock = pygame.time.Clock()
@@ -26,8 +26,9 @@ class env():
         info: dictionary of extra info that can be used to debug
         """
         done = False
-
+        reward = 0
         self.agent.step(action)
+        
 
         x,y = self.agent.get_pos()
 
@@ -38,8 +39,9 @@ class env():
         if dist < 10:
             print('finished!!!!')
             done = True
+            reward = 50
 
-        reward = dist / 634.113554 
+        punishment = -1* dist / 634.113554 
 
         if self.agent.name == "ppo":
             obs=np.concatenate((self.agent.get_pos(), self.goal))
@@ -49,7 +51,7 @@ class env():
 
 
 
-        return obs, -reward, done, {}
+        return obs, punishment + reward, done, {}
 
     def render(self, mode='human'):
         """

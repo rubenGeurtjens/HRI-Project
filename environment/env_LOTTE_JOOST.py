@@ -1,17 +1,16 @@
 import pygame
 import numpy as np
-from agents import manualAgent, ppoAgent
+from agents import manualAgent, ppoAgent, greedyAgent
 
 '''
 Deze file is waar jullie je crowd dingen in kunnen maken.
 '''
 
-
 class env():
 
     def __init__(self):
         self.size = [600, 400]
-        self.agent = ppoAgent.ppoAgent([200,300],[20,20])
+        self.agent = manualAgent.manualAgent([200,300],[20,20])
         self.setup = True
         self.goal1 = [100,50]
         # self.goal2 = [100,150]

@@ -25,7 +25,7 @@ if __name__ == '__main__':
     load_policy = False
 
     path = 'environment/models/'
-    agent_name = '2_goal_normalized_R'
+    agent_name = '2_goal_normalized_R_bigger_NN'
 
     if load_policy:
         print("loading policy")
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     for epoch in range(1, max_epochs+1):
 
-        should_render = epoch % 200 == 0
+        should_render = True #epoch % 200 == 0
 
         observations, actions, logprobs, returns, values, rewards = PPO.generate_episode(env, n_steps, should_render=should_render)
 
