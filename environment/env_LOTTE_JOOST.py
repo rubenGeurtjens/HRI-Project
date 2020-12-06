@@ -21,7 +21,7 @@ class env():
         self.goal1 = [200,350]
         # self.goal2 = [100,150]
         # self.goal3 = [100,250]
-        self.crowd = [Boid(random.randint(0, 600), random.randint(0, 400), self.width, self.height) for _ in range(1)]
+        self.crowd = [Boid(random.randint(0, 600), random.randint(0, 400), self.width, self.height) for _ in range(10)]
         self.clock = pygame.time.Clock()
         self.done = False
 
@@ -52,10 +52,9 @@ class env():
         for boid in self.crowd:
             x, y = boid.position
 
-            if x == self.goal1[0] or y == self.goal1[1]:
-                velocityX = 0
-                velocityY = 0
-                boid.position += boid.velocity
+            if (self.goal1[0] + 10  >= x >= self.goal1[0] - 10) and (self.goal1[1] + 10  >= y >= self.goal1[1] - 10):
+                boid.set_goal(0, 0)
+                # self.done = True
             else:
                 velocityX = boid.velocityX
                 velocityY = boid.velocityY
@@ -63,8 +62,8 @@ class env():
                 # print("y", y)
                 # print("linx", np.linalg.norm(boid.velocityX))
                 # print("liny", np.linalg.norm(boid.velocityY))
-                velocityX += (self.goal1[0] - x) / np.linalg.norm(x - velocityX)
-                velocityY += (self.goal1[1] - y) / np.linalg.norm(y - velocityY)
+                velocityX += (self.goal1[0] - x) / np.linalg.norm(x - velocityX) * 8
+                velocityY += (self.goal1[1] - y) / np.linalg.norm(y - velocityY) * 8
 
                 boid.set_goal(velocityX, velocityY)
 
