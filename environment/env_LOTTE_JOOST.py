@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 from pygame.math import Vector2
 import numpy as np
 from boids import Boid
@@ -17,10 +18,10 @@ class env():
         self.size = [self.width, self.height]
         self.agent = manualAgent.manualAgent([200,300],[20,20])
         self.setup = True
-        self.goal1 = [100,50]
+        self.goal1 = [200,350]
         # self.goal2 = [100,150]
         # self.goal3 = [100,250]
-        self.crowd = [Boid(random.randint(0, 600), random.randint(0, 400), self.width, self.height) for _ in range(3)]
+        self.crowd = [Boid(random.randint(0, 600), random.randint(0, 400), self.width, self.height) for _ in range(1)]
         self.clock = pygame.time.Clock()
         self.done = False
 
@@ -48,25 +49,33 @@ class env():
         info: dictionary of extra info that can be used to debug
         """
 
+        for boid in self.crowd:
+            x, y = boid.position
 
-        # self.position += self.velocity
+            if x == self.goal1[0] or y == self.goal1[1]:
+                velocityX = 0
+                velocityY = 0
+                boid.position += boid.velocity
+            else:
+                velocityX = boid.velocityX
+                velocityY = boid.velocityY
+                # print("x", x)
+                # print("y", y)
+                # print("linx", np.linalg.norm(boid.velocityX))
+                # print("liny", np.linalg.norm(boid.velocityY))
+                velocityX += (self.goal1[0] - x) / np.linalg.norm(x - velocityX)
+                velocityY += (self.goal1[1] - y) / np.linalg.norm(y - velocityY)
+
+                boid.set_goal(velocityX, velocityY)
+
+                boid.position += boid.velocity
+
         # self.velocity += self.acceleration
         # #limit
         # if np.linalg.norm(self.velocity) > self.max_speed:
         #     self.velocity = self.velocity / np.linalg.norm(self.velocity) * self.max_speed
         #
         # self.acceleration = Vector2(*np.zeros(2))
-
-        ## Hier moeten we die boid shit maken
-        # print(self.crowd)
-        # for i, person in enumerate(self.crowd):
-        #     x, y = person
-        #     # y = 1 * x + 11
-        #     # if y > 600 or y < 0 or x > 400 or x < 0:
-        #     #     print("out of screen")
-        #     #     self.done = True
-        #     new_center = (x + 1, y)
-        #     self.crowd[i] = new_center
 
     def render(self, mode='human'):
         """
@@ -82,7 +91,7 @@ class env():
         self._draw_goal()
         pygame.display.update()
 
-        self.clock.tick(60)
+        self.clock.tick(10)
         # pass
 
     def reset(self):
