@@ -17,3 +17,6 @@ class Boid():
         self.velocityX = velX
         self.velocityY = velY
         self.velocity = Vector2(velX, velY)
+
+    def reached_goal(self, goalX, goalY):
+        self.position = Vector2(goalX, goalY)
