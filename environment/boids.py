@@ -5,8 +5,9 @@ from pygame.math import Vector2
 
 class Boid():
 
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, goalNr):
         self.position = Vector2(x, y)
+        self.goalNr = goalNr
         vec = (np.random.rand(2) - 0.5)*10
 
         self.velocityX = 0

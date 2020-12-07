@@ -18,25 +18,14 @@ class env():
         self.size = [self.width, self.height]
         self.agent = manualAgent.manualAgent([200,300],[20,20])
         self.setup = True
-        self.goal1 = [100, 50]
-        self.goal2 = [100, 200]
-        self.goal3 = [100, 350]
-        self.crowd = [Boid(random.randint(0, 600), random.randint(0, 400), self.width, self.height) for _ in range(10)]
+        self.goals = [(100, 50), (100, 200), (100, 350)]
+        self.crowd1 = [Boid(random.randint(500, 600), random.randint(300, 400), self.width, self.height, 0) for _ in range(10)]
+        self.crowd2 = [Boid(random.randint(300, 400), random.randint(250, 350), self.width, self.height, 1) for _ in range(10)]
+        self.crowd3 = [Boid(random.randint(200, 300), random.randint(150, 250), self.width, self.height, 2) for _ in range(10)]
         self.clock = pygame.time.Clock()
         self.done = False
 
-    def edges(self):
-        if self.position.x > self.width:
-            self.position.x = 0
-        elif self.position.x < 0:
-            self.position.x = self.width
-
-        if self.position.y > self.height:
-            self.position.y = 0
-        elif self.position.y < 0:
-            self.position.y = self.height
-
-    def step(self):
+    def step(self, crowd):
         """
         Performs one update step
         and contains the main logic
@@ -49,18 +38,18 @@ class env():
         info: dictionary of extra info that can be used to debug
         """
 
-        for boid in self.crowd:
+        for boid in crowd:
             # Vector from me to cursor
+            goalX, goalY = self.goals[boid.goalNr]
             x, y = boid.position
-            speed = 1
+            speed = 5
 
-            if (self.goal1[0] + 10  >= x >= self.goal1[0] - 10) and (self.goal1[1] + 10  >= y >= self.goal1[1] - 10):
-                boid.reached_goal(self.goal1[0] + 10, self.goal1[1] + 10)
-                # print("boid done")
+            if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
+                boid.reached_goal(goalX + 10, goalY + 10)
 
             else:
-                dx = self.goal1[0] - x
-                dy = self.goal1[1] - y
+                dx = goalX - x
+                dy = goalY - y
 
                 # Unit vector in the same direction
                 # distance = np.linalg.norm(dx * dx + dy * dy)
@@ -97,7 +86,9 @@ class env():
 
         self.screen.fill((0,0,0))
         self._draw_agent()
-        self._draw_crowd()
+        self._draw_crowd(self.crowd1)
+        self._draw_crowd(self.crowd2)
+        self._draw_crowd(self.crowd3)
         self._draw_goal()
         pygame.display.update()
 
@@ -113,7 +104,7 @@ class env():
         """
         self.agent.pos = [np.random.randint(0,600),np.random.randint(0,400)]
 
-        return np.concatenate((self.agent.get_pos(), self.goal1))
+        return np.concatenate((self.agent.get_pos(), [100, 200]))
 
     def _draw_agent(self):
         x,y = self.agent.get_pos()
@@ -122,14 +113,15 @@ class env():
         pygame.draw.rect(self.screen, (255,0,0), rec)
 
     def _draw_goal(self):
-        x1,y1 = self.goal1
-        rec1 = pygame.Rect(x1,y1,20,20)
-        pygame.draw.rect(self.screen, (0,255,0), rec1)
+        for goal in self.goals:
+            x, y = goal
+            rec = pygame.Rect(x, y, 20, 20)
+            pygame.draw.rect(self.screen, (0,255,0), rec)
 
-    def _draw_crowd(self):
+    def _draw_crowd(self, crowd):
         # surface, color, center, radius
         # hier worden de locaties van de mensjes geupdate
-        for boid in self.crowd:
+        for boid in crowd:
             person = boid.position
             pygame.draw.circle(self.screen, (0,0,255), person, 3)
 
@@ -139,4 +131,6 @@ if __name__ == "__main__":
     env.reset()
     while env.done != True:
         env.render()
-        env.step()
+        env.step(env.crowd1)
+        env.step(env.crowd2)
+        env.step(env.crowd3)
