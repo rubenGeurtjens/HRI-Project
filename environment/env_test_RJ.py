@@ -6,11 +6,12 @@ class env():
 
     def __init__(self):
         self.size = [600, 400]
-        self.agent = ppoAgent.ppoAgent([200,300],[20,20])
-        # self.agent = greedyAgent.greedyAgent([200,300],[20,20])
+        #self.agent = ppoAgent.ppoAgent([200,300],[20,20])
+        self.agent = greedyAgent.greedyAgent([200,300],[20,20])
         self.setup = True
         self.goal = [290,50]
         self.clock = pygame.time.Clock()
+        self.objects = [[0,0],[200,100]]
 
 
     def step(self, action):
@@ -47,7 +48,7 @@ class env():
             obs=np.concatenate((self.agent.get_pos(), self.goal))
         
         if self.agent.name == "greedy":
-            obs = [self.goal, [0,0,0]]
+            obs = [self.goal, self.objects]
 
 
 
@@ -64,6 +65,7 @@ class env():
         self.screen.fill((0,0,0))
         self._draw_agent()
         self._draw_goal()
+        self._draw_objects()
         pygame.display.update()
 
         #self.clock.tick(60)
@@ -90,7 +92,7 @@ class env():
             return np.concatenate((self.agent.get_pos(), self.goal))
 
         if self.agent.name == "greedy":
-            return [self.goal, [0,0,0]]
+            return [self.goal, self.objects]
 
     def _draw_agent(self):
         x,y = self.agent.get_pos()
@@ -102,3 +104,10 @@ class env():
         x,y = self.goal
         rec = pygame.Rect(x,y,20,20)
         pygame.draw.rect(self.screen, (0,255,0), rec)
+
+    def _draw_objects(self):
+        for person in self.objects:
+            x,y = person
+            w,h = self.agent.get_size()
+            rec = pygame.Rect(x,y,w,h)
+            pygame.draw.rect(self.screen, (0,0,255), rec)
