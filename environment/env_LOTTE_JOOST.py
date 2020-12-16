@@ -29,7 +29,6 @@ class env():
         """
         Performs one update step
         and contains the main logic
-
         returns:
         observation: contains all info that the agent needs, so positions etc
         reward: reward that the agent gets for performing the action
@@ -39,42 +38,60 @@ class env():
         """
 
         for boid in crowd:
-            # Vector from me to cursor
-            goalX, goalY = self.goals[boid.goalNr]
-            x, y = boid.position
-            speed = 5
+            random_int = random.randint(0, 5)
 
-            if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
-                boid.reached_goal(goalX + 10, goalY + 10)
+            if random_int > 4:
+                random_int = random.randint(0, 5)
+                if random_int > 4:
+                    for i in range (1, 500):
+                        goalX, goalY = self.goals[boid.goalNr]
+                        x, y = boid.position
+
+                        if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
+                            boid.reached_goal(goalX + 10, goalY + 10)
+
+                        dx = random.randint(0, self.width) - x
+                        dy = random.randint(0, self.height) - y
+
+                        # Unit vector in the same direction
+                        distance = math.sqrt(dx * dx + dy * dy)
+                        dx /= distance
+                        dy /= distance
+
+                        # And now we move:
+                        x += dx
+                        y += dy
+
+                        boid.set_goal(dx, dy)
+
+                        boid.position += boid.velocity
+
 
             else:
-                dx = goalX - x
-                dy = goalY - y
+                # Vector from me to cursor
+                goalX, goalY = self.goals[boid.goalNr]
+                x, y = boid.position
 
-                # Unit vector in the same direction
-                # distance = np.linalg.norm(dx * dx + dy * dy)
-                distance = math.sqrt(dx * dx + dy * dy)
-                dx /= distance
-                dy /= distance
+                if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
+                    boid.reached_goal(goalX + 10, goalY + 10)
 
-                # speed-pixel vector in the same direction
-                dx *= speed
-                dy *= speed
+                else:
+                    dx = goalX - x
+                    dy = goalY - y
 
-                # And now we move:
-                x += dx
-                y += dy
+                    # Unit vector in the same direction
+                    # distance = np.linalg.norm(dx * dx + dy * dy)
+                    distance = math.sqrt(dx * dx + dy * dy)
+                    dx /= distance
+                    dy /= distance
 
-                boid.set_goal(dx, dy)
+                    # And now we move:
+                    x += dx
+                    y += dy
 
-                boid.position += boid.velocity
+                    boid.set_goal(dx, dy)
 
-        # self.velocity += self.acceleration
-        # #limit
-        # if np.linalg.norm(self.velocity) > self.max_speed:
-        #     self.velocity = self.velocity / np.linalg.norm(self.velocity) * self.max_speed
-        #
-        # self.acceleration = Vector2(*np.zeros(2))
+                    boid.position += boid.velocity
 
     def render(self, mode='human'):
         """
@@ -98,7 +115,6 @@ class env():
     def reset(self):
         """
         Resets the enviornment to begin condition
-
         returns:
         initial observation
         """
