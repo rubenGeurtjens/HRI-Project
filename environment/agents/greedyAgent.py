@@ -36,7 +36,7 @@ class greedyAgent(agents.agent.agent):
 
 
         for obstacle in obstacles:
-            if self.dist_goal(obstacle, self.pos) < 50:
+            if self.dist_goal(obstacle, self.pos) < 100:
                 obstacle_x, obstacle_y = obstacle
                 a = np.arctan((obstacle_y -pos_y)/(obstacle_x-pos_x))
                 x = np.cos(a)

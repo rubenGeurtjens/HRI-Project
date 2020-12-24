@@ -11,7 +11,7 @@ class env():
         self.setup = True
         self.goal = [290,50]
         self.clock = pygame.time.Clock()
-        self.objects = [[200,100]]
+        self.objects = [[200,100], [250,150], [340,250], [400,100],[100,280]]
 
 
     def step(self, action):
@@ -82,7 +82,7 @@ class env():
         x = np.random.randint(4)
 
         if x == 0:
-            self.goal = [100,10]
+            self.goal = [100,30]
 
         elif x == 1:
             self.goal = [500,10]
