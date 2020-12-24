@@ -11,7 +11,7 @@ class env():
         self.setup = True
         self.goal = [290,50]
         self.clock = pygame.time.Clock()
-        self.objects = [[0,0],[200,100]]
+        self.objects = [[200,100]]
 
 
     def step(self, action):
@@ -68,7 +68,7 @@ class env():
         self._draw_objects()
         pygame.display.update()
 
-        #self.clock.tick(60)
+        self.clock.tick(60)
 
     def reset(self):
         """
@@ -79,13 +79,19 @@ class env():
         """
         self.agent.pos = [300,200]
 
-        x = np.random.randint(2)
+        x = np.random.randint(4)
 
         if x == 0:
             self.goal = [100,10]
 
         elif x == 1:
             self.goal = [500,10]
+
+        elif x == 2:
+            self.goal = [100,370]  
+
+        elif x == 3:
+            self.goal = [500,370]
         
         #self.agent.pos = [np.random.randint(0,600),np.random.randint(0,400)]
         if self.agent.name == "ppo":
