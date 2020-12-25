@@ -34,22 +34,43 @@ class greedyAgent(agents.agent.agent):
         else:
             v1 = [x,y]
 
+        #push strength to all objects within boundry
+        start_push_dist = 300
+        # for obstacle in obstacles:
+        #     if self.dist_goal(obstacle, self.pos) < start_push_dist:
+        #         obstacle_x, obstacle_y = obstacle
+        #         a = np.arctan((obstacle_y -pos_y)/(obstacle_x-pos_x))
+        #         x = np.cos(a)
+        #         y = np.sin(a)
 
-        for obstacle in obstacles:
-            if self.dist_goal(obstacle, self.pos) < 100:
-                obstacle_x, obstacle_y = obstacle
-                a = np.arctan((obstacle_y -pos_y)/(obstacle_x-pos_x))
-                x = np.cos(a)
-                y = np.sin(a)
-
-                if obstacle_x < pos_x:
-                    v2 = [-x*0.8,-y*0.8] 
-                else:
-                    v2 = [x*0.8,y*0.8] 
+        #         push_strength = 1 - 1/start_push_dist * self.dist_goal(obstacle, self.pos) 
+        #         print(push_strength)
+        #         if obstacle_x < pos_x:
+        #             v2 = [-x*push_strength,-y*push_strength] 
+        #         else:
+        #             v2 = [x*push_strength,y*push_strength] 
                 
-                v1 =[v1[0]-v2[0], v1[1]-v2[1]]
+        #         v1 =[v1[0]-v2[0], v1[1]-v2[1]]
 
-            
+        min_dist = np.inf
+        for obstacle in obstacles:
+            if self.dist_goal(obstacle, self.pos) < min_dist:
+                min_dist = self.dist_goal(obstacle, self.pos)
+                closest_obstacle = obstacle
+        
+        obstacle_x, obstacle_y = closest_obstacle
+        a = np.arctan((obstacle_y -pos_y)/(obstacle_x-pos_x))
+        x = np.cos(a)
+        y = np.sin(a)
+
+        push_strength = 1 - 1/start_push_dist * self.dist_goal(closest_obstacle, self.pos) 
+        if obstacle_x < pos_x:
+            v2 = [-x*push_strength,-y*push_strength] 
+        else:
+            v2 = [x*push_strength,y*push_strength] 
+        
+        v1 =[v1[0]-v2[0], v1[1]-v2[1]]
+
         
         v_x, v_y = v1
 

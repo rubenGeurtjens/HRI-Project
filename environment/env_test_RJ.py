@@ -103,17 +103,17 @@ class env():
     def _draw_agent(self):
         x,y = self.agent.get_pos()
         w,h = self.agent.get_size()
-        rec = pygame.Rect(x,y,w,h)
+        rec = pygame.Rect(x-w/2,y-h/2,w,h)
         pygame.draw.rect(self.screen, (255,0,0), rec)
 
     def _draw_goal(self):
         x,y = self.goal
-        rec = pygame.Rect(x,y,20,20)
+        rec = pygame.Rect(x-10,y-10,20,20)
         pygame.draw.rect(self.screen, (0,255,0), rec)
 
     def _draw_objects(self):
         for person in self.objects:
             x,y = person
             w,h = self.agent.get_size()
-            rec = pygame.Rect(x,y,w,h)
+            rec = pygame.Rect(x-w/2,y-h/2,w,h)
             pygame.draw.rect(self.screen, (0,0,255), rec)
