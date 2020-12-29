@@ -20,7 +20,7 @@ class env():
         self.height = 400
 
         self.nr_crowds = 3
-        self.goals = [(100, 30), (500, 10), (100, 370), (500, 370)]
+        self.goals = [(100, 30), (500, 30), (100, 370), (500, 370)]
 
     def step(self, action):
         """
@@ -34,6 +34,9 @@ class env():
             "dies" or finishes the tasks
         info: dictionary of extra info that can be used to debug
         """
+
+        
+
         done = False
 
         for crowd in self.crowd:
@@ -49,9 +52,21 @@ class env():
         if dist < 10:
             print('finished!!!!')
             done = True
+
+
         
     
         objects = [boid.position for crowd in self.crowd for boid in crowd]
+
+        min_dist = np.inf
+        for obstacle in objects:
+            if self.agent.dist_goal(obstacle, self.agent.pos) < min_dist:
+                min_dist = self.agent.dist_goal(obstacle, self.agent.pos)
+                closest_obstacle = obstacle
+
+        if min_dist < 2:
+            print("collision!!!")
+            done = True
 
         obs = [self.goal, objects]
 
@@ -89,7 +104,7 @@ class env():
             self.goal = [100,30]
 
         elif x == 1:
-            self.goal = [500,10]
+            self.goal = [500,30]
 
         elif x == 2:
             self.goal = [100,370]  
