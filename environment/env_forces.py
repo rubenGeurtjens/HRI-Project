@@ -6,7 +6,6 @@ class env():
 
     def __init__(self):
         self.size = [600, 400]
-        #self.agent = ppoAgent.ppoAgent([200,300],[20,20])
         self.agent = greedyAgent.greedyAgent([200,300],[20,20])
         self.setup = True
         self.goal = [290,50]
@@ -27,32 +26,25 @@ class env():
         info: dictionary of extra info that can be used to debug
         """
         done = False
-        reward = 0
+
         self.agent.step(action)
         
 
         x,y = self.agent.get_pos()
-
-        done = x < 0 or x > self.size[0] or y < 0 or y > self.size[1]
 
         dist = self.agent.dist_goal(self.goal)
             
         if dist < 10:
             print('finished!!!!')
             done = True
-            reward = 300
 
-        punishment = -1* dist / 634.113554  #normalizing
-
-        if self.agent.name == "ppo":
-            obs=np.concatenate((self.agent.get_pos(), self.goal))
         
-        if self.agent.name == "greedy":
-            obs = [self.goal, self.objects]
+        
+        obs = [self.goal, self.objects]
 
 
 
-        return obs, punishment + reward, done, {}
+        return obs, 0, done, {}
 
     def render(self, mode='human'):
         """
@@ -93,12 +85,8 @@ class env():
         elif x == 3:
             self.goal = [500,370]
         
-        #self.agent.pos = [np.random.randint(0,600),np.random.randint(0,400)]
-        if self.agent.name == "ppo":
-            return np.concatenate((self.agent.get_pos(), self.goal))
-
-        if self.agent.name == "greedy":
-            return [self.goal, self.objects]
+        
+        return [self.goal, self.objects]
 
     def _draw_agent(self):
         x,y = self.agent.get_pos()

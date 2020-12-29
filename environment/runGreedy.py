@@ -1,9 +1,9 @@
-import env_test_RJ
+import env_forces
 import torch 
 
 if __name__ == '__main__':
 
-    env = env_test_RJ.env()
+    env = env_forces.env()
     obs = env.reset()
     while True:
         action = env.agent.generateMove(obs)
