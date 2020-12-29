@@ -1,18 +1,25 @@
 import pygame
 from agents import manualAgent, ppoAgent, greedyAgent
 import numpy as np
+import gym 
+from gym.spaces import Box
+import math 
 
-class env():
+class env(gym.Env):
+    metadata = {'render.modes': ['human']}
 
     def __init__(self):
         self.size = [600, 400]
-        #self.agent = ppoAgent.ppoAgent([200,300],[20,20])
-        self.agent = greedyAgent.greedyAgent([200,300],[20,20])
+        self.agent = ppoAgent.ppoAgent([200,300],[20,20])
+        #self.agent = greedyAgent.greedyAgent([200,300],[20,20])
         self.setup = True
         self.goal = [290,50]
         self.clock = pygame.time.Clock()
+
         self.objects = [[200,100], [250,150], [340,250], [400,100],[100,280]]
 
+        self.observation_space =  Box(0.0, 600, shape=(4,), dtype=np.float32)
+        self.action_space = Box(0, 1, shape=(1,), dtype=np.float32) 
 
     def step(self, action):
         """
@@ -28,9 +35,12 @@ class env():
         """
         done = False
         reward = 0
-        self.agent.step(action)
+        action = action * (2*np.pi)
+        x = math.cos(action) 
+        y = math.sin(action)
+        self.agent.step([x,y])
         
-
+        #print('action: ', action)
         x,y = self.agent.get_pos()
 
         done = x < 0 or x > self.size[0] or y < 0 or y > self.size[1]
@@ -40,18 +50,18 @@ class env():
         if dist < 10:
             print('finished!!!!')
             done = True
-            reward = 300
+            reward = 50
 
-        punishment = -1* dist / 634.113554  #normalizing
+        punishment = -1* dist #/ 634.113554 
 
         if self.agent.name == "ppo":
             obs=np.concatenate((self.agent.get_pos(), self.goal))
-        
+            #self.agent.get_pos()
         if self.agent.name == "greedy":
             obs = [self.goal, self.objects]
-
-
-
+        # if done:
+        #     print('done')
+        #print(punishment + reward)
         return obs, punishment + reward, done, {}
 
     def render(self, mode='human'):
@@ -79,10 +89,10 @@ class env():
         """
         self.agent.pos = [300,200]
 
-        x = np.random.randint(4)
+        x = np.random.randint(1)
 
         if x == 0:
-            self.goal = [100,30]
+            self.goal = [100, 50]
 
         elif x == 1:
             self.goal = [500,10]
