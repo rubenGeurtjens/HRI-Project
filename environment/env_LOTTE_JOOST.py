@@ -65,8 +65,6 @@ class env():
                         boid.set_goal(dx, dy)
 
                         boid.position += boid.velocity
-
-
             else:
                 # Vector from me to cursor
                 goalX, goalY = self.goals[boid.goalNr]
