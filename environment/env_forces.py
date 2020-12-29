@@ -35,7 +35,7 @@ class env():
         """
         done = False
 
-        self.boid(self.crowd1)
+        #self.boid(self.crowd1)
 
         self.agent.step(action)
         
@@ -49,7 +49,7 @@ class env():
             done = True
 
         
-        objects = [boid.pos for boid in self.crowd1]
+        objects = [boid.position for boid in self.crowd1]
 
         obs = [self.goal, objects]
 

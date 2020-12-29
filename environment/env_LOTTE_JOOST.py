@@ -46,7 +46,6 @@ class env():
                     for i in range (1, 500):
                         goalX, goalY = self.goals[boid.goalNr]
                         x, y = boid.position
-
                         if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
                             boid.reached_goal(goalX + 10, goalY + 10)
 

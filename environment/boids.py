@@ -7,7 +7,6 @@ class Boid():
 
     def __init__(self, x, y, width, height, goalNr):
         self.position = Vector2(x, y)
-        self.pos = [x,y]
         self.goalNr = goalNr
         vec = (np.random.rand(2) - 0.5)*10
 
@@ -22,3 +21,4 @@ class Boid():
 
     def reached_goal(self, goalX, goalY):
         self.position = Vector2(goalX, goalY)
+        
