@@ -9,7 +9,7 @@ class env():
 
     def __init__(self):
         self.size = [600, 400]
-        self.agent = greedyAgent.greedyAgent([200,300],[20,20])
+        self.agent = greedyAgent.greedyAgent([200,300],[3,3])
         self.setup = True
         self.goal = [290,50]
         self.clock = pygame.time.Clock()
@@ -18,8 +18,9 @@ class env():
 
         self.width = 600
         self.height = 400
-        self.crowd1 = [Boid(random.randint(500, 600), random.randint(300, 400), self.width, self.height, 0) for _ in range(10)]
-        self.goals = [(100, 50), (100, 200), (100, 350)]
+
+        self.nr_crowds = 3
+        self.goals = [(100, 30), (500, 10), (100, 370), (500, 370)]
 
     def step(self, action):
         """
@@ -35,7 +36,8 @@ class env():
         """
         done = False
 
-        #self.boid(self.crowd1)
+        for crowd in self.crowd:
+            self.boid(crowd)
 
         self.agent.step(action)
         
@@ -47,13 +49,11 @@ class env():
         if dist < 10:
             print('finished!!!!')
             done = True
-
         
-        objects = [boid.position for boid in self.crowd1]
+    
+        objects = [boid.position for crowd in self.crowd for boid in crowd]
 
         obs = [self.goal, objects]
-
-
 
         return obs, 0, done, {}
 
@@ -69,7 +69,7 @@ class env():
         self._draw_agent()
         self._draw_goal()
         #self._draw_objects()
-        self._draw_crowd(self.crowd1)
+        self._draw_crowd(self.crowd)
         pygame.display.update()
 
         self.clock.tick(120)
@@ -97,73 +97,62 @@ class env():
         elif x == 3:
             self.goal = [500,370]
         
+        self.make_crowd()
         
-        return [self.goal, self.objects]
+        objects = [boid.position for crowd in self.crowd for boid in crowd]
+
+        return [self.goal, objects]
     
     def boid(self, crowd):
         for boid in crowd:
-            random_int = random.randint(0, 5)
+            
+            # Vector from me to cursor
+            goalX, goalY = self.goals[boid.goalNr]
+            x, y = boid.position
 
-            if random_int > 4:
-                random_int = random.randint(0, 5)
-                if random_int > 4:
-                    for i in range (1, 500):
-                        goalX, goalY = self.goals[boid.goalNr]
-                        x, y = boid.position
-
-                        if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
-                            boid.reached_goal(goalX + 10, goalY + 10)
-
-                        dx = random.randint(0, self.width) - x
-                        dy = random.randint(0, self.height) - y
-
-                        # Unit vector in the same direction
-                        distance = math.sqrt(dx * dx + dy * dy)
-                        dx /= distance
-                        dy /= distance
-
-                        # And now we move:
-                        x += dx
-                        y += dy
-
-                        boid.set_goal(dx, dy)
-
-                        boid.position += boid.velocity
-
+            if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
+                boid.reached_goal(goalX + 10, goalY + 10)
 
             else:
-                # Vector from me to cursor
-                goalX, goalY = self.goals[boid.goalNr]
-                x, y = boid.position
+                dx = goalX - x
+                dy = goalY - y
 
-                if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
-                    boid.reached_goal(goalX + 10, goalY + 10)
+                # Unit vector in the same direction
+                # distance = np.linalg.norm(dx * dx + dy * dy)
+                distance = math.sqrt(dx * dx + dy * dy)
+                dx /= distance
+                dy /= distance
 
-                else:
-                    dx = goalX - x
-                    dy = goalY - y
+                # And now we move:
+                x += dx
+                y += dy
 
-                    # Unit vector in the same direction
-                    # distance = np.linalg.norm(dx * dx + dy * dy)
-                    distance = math.sqrt(dx * dx + dy * dy)
-                    dx /= distance
-                    dy /= distance
+                boid.set_goal(dx, dy)
 
-                    # And now we move:
-                    x += dx
-                    y += dy
-
-                    boid.set_goal(dx, dy)
-
-                    boid.position += boid.velocity
+                boid.position += boid.velocity
+    
+    def make_crowd(self):
+        self.crowd = []
+        for c in range(self.nr_crowds):
+            x = np.random.randint(100,500)
+            y = np.random.randint(100,300)
+            goal = np.random.randint(4)
+            new_crowd = [Boid(np.random.randint(x, x+100), random.randint(y,y+100), self.width, self.height, goal) for _ in range(10)]
+            self.crowd.append(new_crowd)
 
     def _draw_agent(self):
         x,y = self.agent.get_pos()
         w,h = self.agent.get_size()
         rec = pygame.Rect(x-w/2,y-h/2,w,h)
-        pygame.draw.rect(self.screen, (255,0,0), rec)
+        pygame.draw.circle(self.screen, (255,0,0), self.agent.pos, 3)
 
     def _draw_goal(self):
+        for goal in self.goals:
+            x,y = goal
+            rec = pygame.Rect(x-10,y-10,20,20)
+            pygame.draw.rect(self.screen, (0,100,0), rec)
+
+
         x,y = self.goal
         rec = pygame.Rect(x-10,y-10,20,20)
         pygame.draw.rect(self.screen, (0,255,0), rec)
@@ -175,9 +164,10 @@ class env():
             rec = pygame.Rect(x-w/2,y-h/2,w,h)
             pygame.draw.rect(self.screen, (0,0,255), rec)
 
-    def _draw_crowd(self, crowd):
+    def _draw_crowd(self, crowds):
         # surface, color, center, radius
         # hier worden de locaties van de mensjes geupdate
-        for boid in crowd:
-            person = boid.position
-            pygame.draw.circle(self.screen, (0,0,255), person, 3)
+        for crowd in crowds:
+            for boid in crowd:
+                person = boid.position
+                pygame.draw.circle(self.screen, (0,0,255), person, 3)
