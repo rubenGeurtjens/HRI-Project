@@ -39,14 +39,14 @@ class env():
         if dist < 25:
             print('finished!!!!')
             done = True
-            reward = 300
+            reward = 0
 
         #punishment = -1* dist / 634.113554  #normalizing
-        punishment = self._calculate_punishment(dist)
+        punishment = self._calculate_punishment2(action)
 
         obs=np.concatenate((self.agent.get_pos(), self.goal))
 
-        # print('punishment: ', punishment)
+        #print('punishment: ', punishment)
         # print('goal pos: ', self.goal)
         # print('agent pos: ', self.agent.get_pos())
         return obs, punishment + reward, done, {}
@@ -64,8 +64,8 @@ class env():
         self._draw_goal()
         self._draw_objects()
         pygame.display.update()
-
-        #self.clock.tick(10)
+        
+        #self.clock.tick(2)
 
     def reset(self):
         """
@@ -76,7 +76,7 @@ class env():
         """
         self.agent.pos = [300,200]
 
-        x = np.random.randint(1)
+        x = np.random.randint(4)
 
         if x == 0:
             self.goal = [100,30]
@@ -103,6 +103,16 @@ class env():
         else:
             return -1
 
+    def _calculate_punishment2(self, action):
+        reward = 0
+        #if the current position is closed to the goal than the previous one give a reward
+        curr_dist = self.agent.dist_goal(self.goal)
+        self.agent.step([-action[0], -action[1]]) #move agent to previous location
+        previous_dist = self.agent.dist_goal(self.goal)
+        if curr_dist < previous_dist: 
+            reward = 1
+        self.agent.step(action) #move the agent back
+        return reward 
 
     def _draw_agent(self):
         x,y = self.agent.get_pos()
