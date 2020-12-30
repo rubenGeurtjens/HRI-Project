@@ -9,8 +9,8 @@ from stable_baselines import PPO2
 if __name__ == '__main__':
     env = env_OPENAI.env()
 
-    model = PPO2(MlpPolicy, env, n_steps=128, verbose=1)
-    model.learn(total_timesteps=250000)
+    model = PPO2(MlpPolicy, env, n_steps=512, verbose=1)
+    model.learn(total_timesteps=1000000)
 
     obs = env.reset()
     while True:

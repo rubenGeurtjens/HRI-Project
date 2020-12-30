@@ -2,7 +2,8 @@ import pygame
 from agents import manualAgent, ppoAgent, greedyAgent
 import numpy as np
 import gym 
-from gym.spaces import Box
+from gym.spaces import Box, Discrete
+#from gym.spaces import Discrete
 import math 
 
 class env(gym.Env):
@@ -11,7 +12,6 @@ class env(gym.Env):
     def __init__(self):
         self.size = [600, 400]
         self.agent = ppoAgent.ppoAgent([200,300],[20,20])
-        #self.agent = greedyAgent.greedyAgent([200,300],[20,20])
         self.setup = True
         self.goal = [290,50]
         self.clock = pygame.time.Clock()
@@ -19,7 +19,16 @@ class env(gym.Env):
         self.objects = [[200,100], [250,150], [340,250], [400,100],[100,280]]
 
         self.observation_space =  Box(0.0, 600, shape=(4,), dtype=np.float32)
-        self.action_space = Box(0, 1, shape=(1,), dtype=np.float32) 
+
+        self.discrete = False 
+
+        #discrete
+        if self.discrete:
+            self.action_space = Discrete(4)
+
+        #continouos 
+        else:
+            self.action_space = Box(0, 1, shape=(1,), dtype=np.float32) 
 
     def step(self, action):
         """
@@ -35,11 +44,23 @@ class env(gym.Env):
         """
         done = False
         reward = 0
-        action = action * (2*np.pi)
-        x = math.cos(action) 
-        y = math.sin(action)
+      
+        if self.discrete:
+            if action <= 0: # left
+                x,y = -1,0  
+            elif action <= 1: #up
+                x,y = 0,-1  
+            elif action <= 2: #right
+                x,y = 1,0
+            elif action <= 3: # down 
+                x,y = 0,1
+      
+        else:
+            #action = action * (2*np.pi)
+            x = math.cos(action) 
+            y = math.sin(action)
         self.agent.step([x,y])
-        
+
         #print('action: ', action)
         x,y = self.agent.get_pos()
 
@@ -47,21 +68,16 @@ class env(gym.Env):
 
         dist = self.agent.dist_goal(self.goal)
             
-        if dist < 10:
+        if dist < 25:
             print('finished!!!!')
             done = True
-            reward = 50
+            reward = 300
 
-        punishment = -1* dist #/ 634.113554 
+        punishment = -1* dist / 634.113554 
+        #punishment = self._calculate_punishment(dist)
+        obs=np.concatenate((self.agent.get_pos(), self.goal))
+        
 
-        if self.agent.name == "ppo":
-            obs=np.concatenate((self.agent.get_pos(), self.goal))
-            #self.agent.get_pos()
-        if self.agent.name == "greedy":
-            obs = [self.goal, self.objects]
-        # if done:
-        #     print('done')
-        #print(punishment + reward)
         return obs, punishment + reward, done, {}
 
     def render(self, mode='human'):
@@ -95,7 +111,7 @@ class env(gym.Env):
             self.goal = [100, 50]
 
         elif x == 1:
-            self.goal = [500,10]
+            self.goal = [500,370]
 
         elif x == 2:
             self.goal = [100,370]  
@@ -104,11 +120,19 @@ class env(gym.Env):
             self.goal = [500,370]
         
         #self.agent.pos = [np.random.randint(0,600),np.random.randint(0,400)]
-        if self.agent.name == "ppo":
-            return np.concatenate((self.agent.get_pos(), self.goal))
+        #return self.goal
+        return np.concatenate((self.agent.get_pos(), self.goal))
 
-        if self.agent.name == "greedy":
-            return [self.goal, self.objects]
+    def _calculate_punishment(self, dist):
+        if dist<50:
+            return 10
+        if dist<100:
+            return 5
+        if dist < 200:
+            return 1
+        else:
+            return 0
+
 
     def _draw_agent(self):
         x,y = self.agent.get_pos()

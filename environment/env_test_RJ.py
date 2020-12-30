@@ -6,8 +6,7 @@ class env():
 
     def __init__(self):
         self.size = [600, 400]
-        #self.agent = ppoAgent.ppoAgent([200,300],[20,20])
-        self.agent = greedyAgent.greedyAgent([200,300],[20,20])
+        self.agent = ppoAgent.ppoAgent([200,300],[20,20])
         self.setup = True
         self.goal = [290,50]
         self.clock = pygame.time.Clock()
@@ -37,21 +36,19 @@ class env():
 
         dist = self.agent.dist_goal(self.goal)
             
-        if dist < 10:
+        if dist < 25:
             print('finished!!!!')
             done = True
             reward = 300
 
-        punishment = -1* dist / 634.113554  #normalizing
+        #punishment = -1* dist / 634.113554  #normalizing
+        punishment = self._calculate_punishment(dist)
 
-        if self.agent.name == "ppo":
-            obs=np.concatenate((self.agent.get_pos(), self.goal))
-        
-        if self.agent.name == "greedy":
-            obs = [self.goal, self.objects]
+        obs=np.concatenate((self.agent.get_pos(), self.goal))
 
-
-
+        # print('punishment: ', punishment)
+        # print('goal pos: ', self.goal)
+        # print('agent pos: ', self.agent.get_pos())
         return obs, punishment + reward, done, {}
 
     def render(self, mode='human'):
@@ -68,7 +65,7 @@ class env():
         self._draw_objects()
         pygame.display.update()
 
-        self.clock.tick(120)
+        #self.clock.tick(10)
 
     def reset(self):
         """
@@ -79,7 +76,7 @@ class env():
         """
         self.agent.pos = [300,200]
 
-        x = np.random.randint(4)
+        x = np.random.randint(1)
 
         if x == 0:
             self.goal = [100,30]
@@ -94,11 +91,18 @@ class env():
             self.goal = [500,370]
         
         #self.agent.pos = [np.random.randint(0,600),np.random.randint(0,400)]
-        if self.agent.name == "ppo":
-            return np.concatenate((self.agent.get_pos(), self.goal))
+        return np.concatenate((self.agent.get_pos(), self.goal))
 
-        if self.agent.name == "greedy":
-            return [self.goal, self.objects]
+    def _calculate_punishment(self, dist):
+        if dist<50:
+            return 20
+        if dist<100:
+            return 10
+        if dist < 200:
+            return 1
+        else:
+            return -1
+
 
     def _draw_agent(self):
         x,y = self.agent.get_pos()
