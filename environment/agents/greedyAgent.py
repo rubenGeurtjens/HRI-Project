@@ -5,7 +5,7 @@ import numpy as np
 
 class greedyAgent(agents.agent.agent):
     """
-    manually controlled agent
+    force  agent
     """
 
 
