@@ -9,19 +9,53 @@ class greedyAgent(agents.agent.agent):
     """
 
 
-    def __init__(self,pos,size):
+    def __init__(self,pos,size,start_push=100, close_push_dist=50):
         super().__init__(pos,size) 
-        self.moves = [[-1,0], [0,-1], [1,0], [0,1]] 
         self.name = "greedy"
+        self.start_push_dist = start_push
+        self.close_push_dist = close_push_dist
     
     def step(self, move):
         self.update_pos(move)
 
     def generateMove(self, obs):
+        """
+        Generates the next move of the agent.
+        The move returned is a vector of length 1 in the desired direction
+        """
+        #unpack observation
         goal, obstacles = obs
-        obj_dist = 50
 
+        v1 = self.vector_to_goal(goal)
 
+        closest_obstacle = self.get_closest_obstacle(obstacles)
+        
+
+        x,y = self.vector_from_obstacle(closest_obstacle)
+        
+        push_strength = self.get_push_strength(closest_obstacle)
+        
+
+        pos_x, _ = self.pos
+        obstacle_x, _ = closest_obstacle
+
+        if obstacle_x < pos_x:
+            v2 = [-x*push_strength,-y*push_strength] 
+        else:
+            v2 = [x*push_strength,y*push_strength] 
+        
+        #construct final vector and normalize
+        v =[v1[0]-v2[0], v1[1]-v2[1]]
+        v_x, v_y = v
+        magnitude = np.sqrt(v_x*v_x + v_y*v_y)
+        norm_v = v/magnitude
+
+        return norm_v
+    
+    def vector_to_goal(self, goal):
+        """
+        calculates vector of maginitude one towards goal from agent pos
+        """
         goal_x, goal_y = goal
         pos_x, pos_y = self.pos
 
@@ -30,81 +64,39 @@ class greedyAgent(agents.agent.agent):
         y = np.sin(a)
 
         if goal_x<pos_x:
-            v1 = [-x,-y]
+            return [-x,-y]
         else:
-            v1 = [x,y]
-
-        #push strength to all objects within boundry
-        start_push_dist = 300
-        # for obstacle in obstacles:
-        #     if self.dist_goal(obstacle, self.pos) < start_push_dist:
-        #         obstacle_x, obstacle_y = obstacle
-        #         a = np.arctan((obstacle_y -pos_y)/(obstacle_x-pos_x))
-        #         x = np.cos(a)
-        #         y = np.sin(a)
-
-        #         push_strength = 1 - 1/start_push_dist * self.dist_goal(obstacle, self.pos) 
-        #         print(push_strength)
-        #         if obstacle_x < pos_x:
-        #             v2 = [-x*push_strength,-y*push_strength] 
-        #         else:
-        #             v2 = [x*push_strength,y*push_strength] 
-                
-        #         v1 =[v1[0]-v2[0], v1[1]-v2[1]]
-
+            return [x,y]
+    
+    def get_closest_obstacle(self, obstacles):
         min_dist = np.inf
         for obstacle in obstacles:
             if self.dist_goal(obstacle, self.pos) < min_dist:
                 min_dist = self.dist_goal(obstacle, self.pos)
                 closest_obstacle = obstacle
         
+        return closest_obstacle
+    
+    def vector_from_obstacle(self, closest_obstacle):
+        pos_x, pos_y = self.pos
         obstacle_x, obstacle_y = closest_obstacle
         a = np.arctan((obstacle_y -pos_y)/(obstacle_x-pos_x))
         x = np.cos(a)
         y = np.sin(a)
-
-        push_strength = 1 - 1/start_push_dist * self.dist_goal(closest_obstacle, self.pos) 
-        if obstacle_x < pos_x:
-            v2 = [-x*push_strength,-y*push_strength] 
-        else:
-            v2 = [x*push_strength,y*push_strength] 
-        
-        v1 =[v1[0]-v2[0], v1[1]-v2[1]]
-
-        
-        v_x, v_y = v1
-
-        magnitude = np.sqrt(v_x*v_x + v_y*v_y)
-
-        norm_v1 = v1/magnitude
-
-
-        return norm_v1
-
-        # best_move = [0,0]
-        # min_dist = inf
-        
-        #----Greedy tactic no obstacles---
-
-        # for move in self.moves:
-        #     dist = self.dist_goal(goal, [self.pos[0]+move[0], self.pos[1]+move[1]])
-        #     if dist < min_dist:
-        #         best_move = move
-        #         min_dist = dist
-
-
-        # for move in self.moves:
-        #     dist = self.dist_goal(goal, [self.pos[0]+move[0], self.pos[1]+move[1]])
-        #     dist_ok = self.distanceCheck(obstacles,  [self.pos[0]+move[0], self.pos[1]+move[1]], obj_dist)
-        #     if dist < min_dist and dist_ok:
-        #         best_move = move
-        #         min_dist = dist
-
-        # return best_move
+        return(x,y)
     
-    def distanceCheck(self, obstacles, pos, min_dist):
-        for obstacle in obstacles:
-            print(obstacle)
-            if self.dist_goal(obstacle,pos) <= min_dist:
-                return False          
-        return True
+    def get_push_strength(self, closest_obstacle):
+        """
+        Calculates the amount of required push strength based on the distance to the closest obstacle
+        """
+        #strength of inner cirlce
+        if self.close_push_dist > self.dist_goal(closest_obstacle, self.pos):
+            return 10*(1 - 1/self.close_push_dist * self.dist_goal(closest_obstacle, self.pos))
+
+
+        # strength of outer circle
+        elif self.start_push_dist > self.dist_goal(closest_obstacle, self.pos):
+            return 3*(1 - 1/self.start_push_dist * self.dist_goal(closest_obstacle, self.pos)) 
+        
+        else:
+            return 0

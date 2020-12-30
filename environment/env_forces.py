@@ -9,12 +9,10 @@ class env():
 
     def __init__(self):
         self.size = [600, 400]
-        self.agent = greedyAgent.greedyAgent([200,300],[3,3])
+        self.agent = greedyAgent.greedyAgent([200,300],[3,3], 50,20)
         self.setup = True
-        self.goal = [290,50]
         self.clock = pygame.time.Clock()
         self.objects = [[200,100], [250,150], [340,250], [400,100],[100,280]]
-
 
         self.width = 600
         self.height = 400
@@ -35,42 +33,40 @@ class env():
         info: dictionary of extra info that can be used to debug
         """
 
-        
-
-        done = False
-
-        for crowd in self.crowd:
+        # step all crowds
+        for crowd in self.crowds:
             self.boid(crowd)
 
+        #step agent
         self.agent.step(action)
+            
         
-
-        x,y = self.agent.get_pos()
+        #check if episode is over finished/crashed
+        done = False
 
         dist = self.agent.dist_goal(self.goal)
-            
-        if dist < 10:
+
+        if dist < 20:
             print('finished!!!!')
             done = True
-
-
-        
     
-        objects = [boid.position for crowd in self.crowd for boid in crowd]
+        objects = [boid.position for crowd in self.crowds for boid in crowd]
 
         min_dist = np.inf
         for obstacle in objects:
             if self.agent.dist_goal(obstacle, self.agent.pos) < min_dist:
                 min_dist = self.agent.dist_goal(obstacle, self.agent.pos)
-                closest_obstacle = obstacle
 
         if min_dist < 2:
             print("collision!!!")
             done = True
 
+        #create observations
         obs = [self.goal, objects]
 
         return obs, 0, done, {}
+
+
 
     def render(self, mode='human'):
         """
@@ -84,7 +80,7 @@ class env():
         self._draw_agent()
         self._draw_goal()
         #self._draw_objects()
-        self._draw_crowd(self.crowd)
+        self._draw_crowd()
         pygame.display.update()
 
         self.clock.tick(120)
@@ -100,27 +96,17 @@ class env():
 
         x = np.random.randint(4)
 
-        if x == 0:
-            self.goal = [100,30]
-
-        elif x == 1:
-            self.goal = [500,30]
-
-        elif x == 2:
-            self.goal = [100,370]  
-
-        elif x == 3:
-            self.goal = [500,370]
+        self.goal = self.goals[x]
         
         self.make_crowd()
         
-        objects = [boid.position for crowd in self.crowd for boid in crowd]
+        objects = [boid.position for crowd in self.crowds for boid in crowd]
 
         return [self.goal, objects]
     
     def boid(self, crowd):
         for boid in crowd:
-            
+
             # Vector from me to cursor
             goalX, goalY = self.goals[boid.goalNr]
             x, y = boid.position
@@ -147,18 +133,17 @@ class env():
                 boid.position += boid.velocity
     
     def make_crowd(self):
-        self.crowd = []
-        for c in range(self.nr_crowds):
+        self.crowds = []
+        for _ in range(self.nr_crowds):
             x = np.random.randint(100,500)
             y = np.random.randint(100,300)
             goal = np.random.randint(4)
             new_crowd = [Boid(np.random.randint(x, x+100), random.randint(y,y+100), self.width, self.height, goal) for _ in range(10)]
-            self.crowd.append(new_crowd)
+            self.crowds.append(new_crowd)
 
     def _draw_agent(self):
-        x,y = self.agent.get_pos()
-        w,h = self.agent.get_size()
-        rec = pygame.Rect(x-w/2,y-h/2,w,h)
+        pygame.draw.circle(self.screen, (100,0,0), self.agent.pos, self.agent.start_push_dist)
+        pygame.draw.circle(self.screen, (150,0,0), self.agent.pos, self.agent.close_push_dist)
         pygame.draw.circle(self.screen, (255,0,0), self.agent.pos, 3)
 
     def _draw_goal(self):
@@ -179,10 +164,8 @@ class env():
             rec = pygame.Rect(x-w/2,y-h/2,w,h)
             pygame.draw.rect(self.screen, (0,0,255), rec)
 
-    def _draw_crowd(self, crowds):
-        # surface, color, center, radius
-        # hier worden de locaties van de mensjes geupdate
-        for crowd in crowds:
+    def _draw_crowd(self):
+        for crowd in self.crowds:
             for boid in crowd:
                 person = boid.position
                 pygame.draw.circle(self.screen, (0,0,255), person, 3)
