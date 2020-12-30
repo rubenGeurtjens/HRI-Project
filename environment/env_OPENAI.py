@@ -10,7 +10,7 @@ class env(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self):
-        self.size = [600, 400]
+        self.size = [600, 600]
         self.agent = ppoAgent.ppoAgent([200,300],[20,20])
         self.setup = True
         self.goal = [290,50]
@@ -28,7 +28,7 @@ class env(gym.Env):
 
         #continouos 
         else:
-            self.action_space = Box(0, 1, shape=(1,), dtype=np.float32) 
+            self.action_space = Box(0, 2*np.pi, shape=(1,), dtype=np.float32) 
 
     def step(self, action):
         """
