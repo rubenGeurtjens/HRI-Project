@@ -66,11 +66,7 @@ class env():
 
             #             boid.position += boid.velocity
             #else:
-            #           boid.position += boid.velocity
-            
-            # Vector from me to cursor
-
-
+                # Vector from me to cursor
             goalX, goalY = self.goals[boid.goalNr]
             x, y = boid.position
 

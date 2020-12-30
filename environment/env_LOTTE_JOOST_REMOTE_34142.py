@@ -40,60 +40,55 @@ class env():
         for boid in crowd:
             random_int = random.randint(0, 5)
 
-            # if random_int > 4:
-            #     random_int = random.randint(0, 5)
-            #     if random_int > 4:
-            #         for i in range (1, 500):
-            #             goalX, goalY = self.goals[boid.goalNr]
-            #             x, y = boid.position
+            if random_int > 4:
+                random_int = random.randint(0, 5)
+                if random_int > 4:
+                    for i in range (1, 500):
+                        goalX, goalY = self.goals[boid.goalNr]
+                        x, y = boid.position
+                        if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
+                            boid.reached_goal(goalX + 10, goalY + 10)
 
-            #             if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
-            #                 boid.reached_goal(goalX + 10, goalY + 10)
+                        dx = random.randint(0, self.width) - x
+                        dy = random.randint(0, self.height) - y
 
-            #             dx = random.randint(0, self.width) - x
-            #             dy = random.randint(0, self.height) - y
+                        # Unit vector in the same direction
+                        distance = math.sqrt(dx * dx + dy * dy)
+                        dx /= distance
+                        dy /= distance
 
-            #             # Unit vector in the same direction
-            #             distance = math.sqrt(dx * dx + dy * dy)
-            #             dx /= distance
-            #             dy /= distance
+                        # And now we move:
+                        x += dx
+                        y += dy
 
-            #             # And now we move:
-            #             x += dx
-            #             y += dy
+                        boid.set_goal(dx, dy)
 
-            #             boid.set_goal(dx, dy)
-
-            #             boid.position += boid.velocity
-            #else:
-            #           boid.position += boid.velocity
-            
-            # Vector from me to cursor
-
-
-            goalX, goalY = self.goals[boid.goalNr]
-            x, y = boid.position
-
-            if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
-                boid.reached_goal(goalX + 10, goalY + 10)
-
+                        boid.position += boid.velocity
             else:
-                dx = goalX - x
-                dy = goalY - y
+                # Vector from me to cursor
+                goalX, goalY = self.goals[boid.goalNr]
+                x, y = boid.position
 
-                # Unit vector in the same direction
-                # distance = np.linalg.norm(dx * dx + dy * dy)
-                distance = math.sqrt(dx * dx + dy * dy)
-                dx /= distance
-                dy /= distance
+                if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
+                    boid.reached_goal(goalX + 10, goalY + 10)
 
-                # And now we move:
-                x += dx
-                y += dy
+                else:
+                    dx = goalX - x
+                    dy = goalY - y
 
-                boid.set_goal(dx, dy)
+                    # Unit vector in the same direction
+                    # distance = np.linalg.norm(dx * dx + dy * dy)
+                    distance = math.sqrt(dx * dx + dy * dy)
+                    dx /= distance
+                    dy /= distance
 
-                boid.position += boid.velocity
+                    # And now we move:
+                    x += dx
+                    y += dy
+
+                    boid.set_goal(dx, dy)
+
+                    boid.position += boid.velocity
 
     def render(self, mode='human'):
         """

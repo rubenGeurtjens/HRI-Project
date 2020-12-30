@@ -40,6 +40,7 @@ class env():
         for boid in crowd:
             random_int = random.randint(0, 5)
 
+<<<<<<< HEAD
             # if random_int > 4:
             #     random_int = random.randint(0, 5)
             #     if random_int > 4:
@@ -49,6 +50,16 @@ class env():
 
             #             if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
             #                 boid.reached_goal(goalX + 10, goalY + 10)
+=======
+            if random_int > 4:
+                random_int = random.randint(0, 5)
+                if random_int > 4:
+                    for i in range (1, 500):
+                        goalX, goalY = self.goals[boid.goalNr]
+                        x, y = boid.position
+                        if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
+                            boid.reached_goal(goalX + 10, goalY + 10)
+>>>>>>> ea51b8b56a4fbbe243cfd20bee1b719c6b86979c
 
             #             dx = random.randint(0, self.width) - x
             #             dy = random.randint(0, self.height) - y
@@ -64,13 +75,14 @@ class env():
 
             #             boid.set_goal(dx, dy)
 
+<<<<<<< HEAD
             #             boid.position += boid.velocity
             #else:
-            #           boid.position += boid.velocity
-            
-            # Vector from me to cursor
-
-
+=======
+                        boid.position += boid.velocity
+            else:
+>>>>>>> ea51b8b56a4fbbe243cfd20bee1b719c6b86979c
+                # Vector from me to cursor
             goalX, goalY = self.goals[boid.goalNr]
             x, y = boid.position
 

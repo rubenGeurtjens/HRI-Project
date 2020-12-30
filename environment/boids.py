@@ -21,3 +21,4 @@ class Boid():
 
     def reached_goal(self, goalX, goalY):
         self.position = Vector2(goalX, goalY)
+        
