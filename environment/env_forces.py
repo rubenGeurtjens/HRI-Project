@@ -133,7 +133,6 @@ class env():
                 boid.position += boid.velocity
     
     def make_crowd(self):
-        #jelle heeft een koffiezet apparaat met vieze en lekkere koffie!
         self.crowds = []
         for _ in range(self.nr_crowds):
             r = np.random.randint(4)
