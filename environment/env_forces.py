@@ -135,8 +135,15 @@ class env():
     def make_crowd(self):
         self.crowds = []
         for _ in range(self.nr_crowds):
-            x = np.random.randint(100,500)
-            y = np.random.randint(100,300)
+            r = np.random.randint(4)
+            x, y = self.goals[r]
+
+            if r == 0 or r == 2:
+                x = np.random.randint(self.size[0])
+            
+            if r == 1 or r == 3:
+                y = np.random.randint(self.size[1])
+
             goal = np.random.randint(4)
             new_crowd = [Boid(np.random.randint(x, x+100), random.randint(y,y+100), self.width, self.height, goal) for _ in range(10)]
             self.crowds.append(new_crowd)
