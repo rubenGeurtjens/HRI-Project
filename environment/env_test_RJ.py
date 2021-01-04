@@ -1,6 +1,8 @@
 import pygame
 from agents import manualAgent, ppoAgent, greedyAgent
 import numpy as np
+from boids import Boid
+import math
 
 class env():
 
@@ -8,10 +10,10 @@ class env():
         self.size = [600, 400]
         self.agent = ppoAgent.ppoAgent([200,300],[20,20])
         self.setup = True
-        self.goal = [290,50]
         self.clock = pygame.time.Clock()
-        self.objects = [[200,100], [250,150], [340,250], [400,100],[100,280]]
 
+        self.nr_crowds = 3
+        self.goals = [(100, 30), (500, 30), (100, 370), (500, 370)]
 
     def step(self, action):
         """
@@ -27,28 +29,28 @@ class env():
         """
         done = False
         reward = 0
+
+        for crowd in self.crowds:
+            self.boid(crowd)
+
         self.agent.step(action)
-        
 
         x,y = self.agent.get_pos()
-
+       
         done = x < 0 or x > self.size[0] or y < 0 or y > self.size[1]
 
         dist = self.agent.dist_goal(self.goal)
             
         if dist < 25:
-            print('finished!!!!')
+            print('finished')
             done = True
-            reward = 0
+            reward = 500
+        
+        punishment = self._get_punish_boids(action)
 
-        punishment = -1* dist / 634.113554  #normalizing
-        #punishment = self._calculate_punishment2(action)
-
-        obs=np.concatenate((self.agent.get_pos(), self.goal))
-
-        #print('punishment: ', punishment)
-        #print('goal pos: ', self.goal)
-        #print('agent pos: ', self.agent.get_pos())
+        boids_pos = np.asarray([boid.position for crowd in self.crowds for boid in crowd])
+        obs = np.concatenate((self.agent.get_pos(), self.goal))
+        obs=np.concatenate((obs, self._get_closest_pos()))
         return obs, punishment + reward, done, {}
 
     def render(self, mode='human'):
@@ -62,10 +64,11 @@ class env():
         self.screen.fill((0,0,0))
         self._draw_agent()
         self._draw_goal()
-        self._draw_objects()
+        self._draw_crowd()
+
         pygame.display.update()
         
-        #self.clock.tick(2)
+        self.clock.tick(20)
 
     def reset(self):
         """
@@ -76,34 +79,17 @@ class env():
         """
         self.agent.pos = [300,200]
 
-        x = np.random.randint(4)
-
-        if x == 0:
-            self.goal = [100,30]
-
-        elif x == 1:
-            self.goal = [500,10]
-
-        elif x == 2:
-            self.goal = [100,370]  
-
-        elif x == 3:
-            self.goal = [500,370]
+        x = np.random.randint(1)
+        self.goal = self.goals[x]
         
-        #self.agent.pos = [np.random.randint(0,600),np.random.randint(0,400)]
-        return np.concatenate((self.agent.get_pos(), self.goal))
+        self._make_crowd()
+        
+        boids_pos = np.asarray([boid.position for crowd in self.crowds for boid in crowd])
+        obs = np.concatenate((self.agent.get_pos(), self.goal))
+        obs=np.concatenate((obs, self._get_closest_pos()))
+        return obs
 
-    def _calculate_punishment(self, dist):
-        if dist<50:
-            return 20
-        if dist<100:
-            return 10
-        if dist < 200:
-            return 1
-        else:
-            return -1
-
-    def _calculate_punishment2(self, action):
+    def _get_punish_no_boids(self, action):
         reward = 0
         #if the current position is closed to the goal than the previous one give a reward
         curr_dist = self.agent.dist_goal(self.goal)
@@ -114,20 +100,98 @@ class env():
         self.agent.step(action) #move the agent back
         return reward 
 
+    def _get_punish_boids(self, action):
+        reward = self._get_punish_no_boids(action)
+        dist = self._get_closest_boid()
+        if dist < 3:
+            reward -= 0.5
+        return reward 
+
+    def _get_closest_boid(self):
+        boids_pos = [boid.position for crowd in self.crowds for boid in crowd]
+        min_dist = np.inf
+        for pos in boids_pos:
+            if self.agent.dist_goal(pos, self.agent.pos) < min_dist:
+                min_dist = self.agent.dist_goal(pos, self.agent.pos)
+        
+        return min_dist
+
+    def _get_closest_pos(self):
+        boids_pos = [boid.position for crowd in self.crowds for boid in crowd]
+        min_dist = np.inf
+        closest = boids_pos[0]
+        for pos in boids_pos:
+            if self.agent.dist_goal(pos, self.agent.pos) < min_dist:
+                min_dist = self.agent.dist_goal(pos, self.agent.pos)
+                closest = pos 
+        return np.asarray(closest)
+
+    def _make_crowd(self):
+        self.crowds = []
+
+        variance_from_line = 300
+        for _ in range(self.nr_crowds):
+            r = np.random.randint(4)
+            x, y = self.goals[r]
+
+            if r == 0:
+                x = np.random.randint(self.size[0])
+                y = np.random.randint(y-variance_from_line, y+variance_from_line)
+            
+            if r == 1:
+                x = np.random.randint(x-variance_from_line, x+variance_from_line)
+                y = np.random.randint(self.size[1])
+        
+            if r == 2:
+                x = np.random.randint(self.size[0])
+                y = np.random.randint(y-variance_from_line, y+variance_from_line)
+
+            if r == 3:
+                x = np.random.randint(x-variance_from_line, x+variance_from_line)
+                y = np.random.randint(self.size[1])
+
+
+            goal = np.random.randint(4)
+            new_crowd = [Boid(np.random.randint(x, x+100), np.random.randint(y,y+100), self.size[0], self.size[1], goal) for _ in range(10)]
+            self.crowds.append(new_crowd)
+
+
+
+    def boid(self, crowd):
+        for boid in crowd:
+
+            # Vector from me to cursor
+            goalX, goalY = self.goals[boid.goalNr]
+            x, y = boid.position
+
+            if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
+                boid.reached_goal(goalX + 10, goalY + 10)
+
+            else:
+                dx = goalX - x
+                dy = goalY - y
+
+                distance = math.sqrt(dx * dx + dy * dy)
+                dx /= distance
+                dy /= distance
+
+                x += dx
+                y += dy
+
+                boid.set_goal(dx, dy)
+                boid.position += boid.velocity
+
     def _draw_agent(self):
-        x,y = self.agent.get_pos()
-        w,h = self.agent.get_size()
-        rec = pygame.Rect(x-w/2,y-h/2,w,h)
-        pygame.draw.rect(self.screen, (255,0,0), rec)
+        pygame.draw.circle(self.screen, (255,0,0), self.agent.pos, 3)
 
     def _draw_goal(self):
         x,y = self.goal
         rec = pygame.Rect(x-10,y-10,20,20)
         pygame.draw.rect(self.screen, (0,255,0), rec)
 
-    def _draw_objects(self):
-        for person in self.objects:
-            x,y = person
-            w,h = self.agent.get_size()
-            rec = pygame.Rect(x-w/2,y-h/2,w,h)
-            pygame.draw.rect(self.screen, (0,0,255), rec)
+    
+    def _draw_crowd(self):
+        for crowd in self.crowds:
+            for boid in crowd:
+                person = boid.position
+                pygame.draw.circle(self.screen, (0,0,255), person, 3)

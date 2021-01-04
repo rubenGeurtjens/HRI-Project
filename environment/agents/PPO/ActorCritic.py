@@ -18,6 +18,7 @@ class MLP(nn.Module):
         # action network
         self.act_fc1 = nn.Linear(obs_space, 24)
         self.act_fc2 = nn.Linear(24, 38)
+        #self.act_fc3 = nn.Linear(128, 32)
         self.mu = nn.Linear(38, action_space)
         self.mu.weight.data.mul_(0.1)
 
@@ -26,6 +27,7 @@ class MLP(nn.Module):
 
         self.value_fc1 = nn.Linear(obs_space, 24)
         self.value_fc2 = nn.Linear(24, 38)
+        #self.value_fc3 = nn.Linear(128, 32)
         self.value_fc3 = nn.Linear(38, 1)
         self.value_fc3.weight.data.mul(0.1)
 
@@ -34,6 +36,8 @@ class MLP(nn.Module):
         act = torch.relu(act)
         act = self.act_fc2(act)
         act = torch.relu(act)
+        #act = self.act_fc3(act)
+        #act = torch.relu(act)
         
         mean = self.mu(act) 
         logstd = self.logstd.expand_as(mean)
@@ -45,6 +49,8 @@ class MLP(nn.Module):
         v = self.value_fc2(v)
         v = torch.relu(v)
         v = self.value_fc3(v)
+        #v = torch.relu(v)
+        #v = self.value_fc4(v)
 
         logprob = self.log_normal_density(action, mean, std=std, log_std=logstd)
         return v, action, logprob, mean
