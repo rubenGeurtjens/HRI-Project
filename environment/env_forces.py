@@ -2,23 +2,23 @@ import pygame
 from agents import manualAgent, ppoAgent, greedyAgent
 import numpy as np
 from boids import Boid
-import random
 import math
 
 class env():
 
     def __init__(self):
-        self.size = [600, 400]
+        self.screen  = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
+        info = pygame.display.Info()
+        screen_width,screen_height = info.current_w,info.current_h
+        self.size = [screen_width, screen_height]
         self.agent = greedyAgent.greedyAgent([200,300],[3,3], 50,20)
-        self.setup = True
+        self.setup = False
         self.clock = pygame.time.Clock()
-        self.objects = [[200,100], [250,150], [340,250], [400,100],[100,280]]
+        self.objects = [[100,100], [self.size[0]-100,100], [self.size[0]-100,self.size[1]-100], [100,self.size[1]-100],[100,280]]
 
-        self.width = 600
-        self.height = 400
-
-        self.nr_crowds = 3
-        self.goals = [(100, 30), (500, 30), (100, 370), (500, 370)]
+        self.nr_crowds = 50
+        self.goals = [[100,100], [self.size[0]-100,100], [self.size[0]-100,self.size[1]-100], [100,self.size[1]-100]]
 
     def step(self, action):
         """
@@ -50,19 +50,19 @@ class env():
             print('finished!!!!')
             done = True
     
-        objects = [boid.position for crowd in self.crowds for boid in crowd]
+        persons = [boid.position for crowd in self.crowds for boid in crowd]
 
         min_dist = np.inf
-        for obstacle in objects:
-            if self.agent.dist_goal(obstacle, self.agent.pos) < min_dist:
-                min_dist = self.agent.dist_goal(obstacle, self.agent.pos)
+        for person in persons:
+            if self.agent.dist_goal(person, self.agent.pos) < min_dist:
+                min_dist = self.agent.dist_goal(person, self.agent.pos)
 
         if min_dist < 2:
             print("collision!!!")
             done = True
 
         #create observations
-        obs = [self.goal, objects]
+        obs = [self.goal, persons]
 
         return obs, 0, done, {}
 
@@ -73,7 +73,8 @@ class env():
         Used to render the screen
         """
         if self.setup:
-            self.screen = pygame.display.set_mode((self.size[0], self.size[1]))
+            self.screen  = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+            #self.screen = pygame.display.set_mode((self.size[0], self.size[1]))
             self.setup = False
 
         self.screen.fill((0,0,0))
@@ -92,7 +93,7 @@ class env():
         returns:
         initial observation
         """
-        self.agent.pos = [300,200]
+        self.agent.pos = [self.size[0]/2, self.size[1]/2]
 
         x = np.random.randint(4)
 
@@ -100,9 +101,9 @@ class env():
         
         self.make_crowd()
         
-        objects = [boid.position for crowd in self.crowds for boid in crowd]
+        persons = [boid.position for crowd in self.crowds for boid in crowd]
 
-        return [self.goal, objects]
+        return [self.goal, persons]
     
     def boid(self, crowd):
         for boid in crowd:
@@ -134,18 +135,31 @@ class env():
     
     def make_crowd(self):
         self.crowds = []
+
+        variance_from_line = 300
         for _ in range(self.nr_crowds):
             r = np.random.randint(4)
             x, y = self.goals[r]
 
-            if r == 0 or r == 2:
+            if r == 0:
                 x = np.random.randint(self.size[0])
+                y = np.random.randint(y-variance_from_line, y+variance_from_line)
             
-            if r == 1 or r == 3:
+            if r == 1:
+                x = np.random.randint(x-variance_from_line, x+variance_from_line)
+                y = np.random.randint(self.size[1])
+        
+            if r == 2:
+                x = np.random.randint(self.size[0])
+                y = np.random.randint(y-variance_from_line, y+variance_from_line)
+
+            if r == 3:
+                x = np.random.randint(x-variance_from_line, x+variance_from_line)
                 y = np.random.randint(self.size[1])
 
+
             goal = np.random.randint(4)
-            new_crowd = [Boid(np.random.randint(x, x+100), random.randint(y,y+100), self.width, self.height, goal) for _ in range(10)]
+            new_crowd = [Boid(np.random.randint(x, x+100), np.random.randint(y,y+100), self.size[0], self.size[1], goal) for _ in range(10)]
             self.crowds.append(new_crowd)
 
     def _draw_agent(self):
