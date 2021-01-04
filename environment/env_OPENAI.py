@@ -133,7 +133,6 @@ class env(gym.Env):
         else:
             return 0
 
-
     def _draw_agent(self):
         x,y = self.agent.get_pos()
         w,h = self.agent.get_size()

@@ -41,14 +41,14 @@ class env():
             done = True
             reward = 0
 
-        #punishment = -1* dist / 634.113554  #normalizing
-        punishment = self._calculate_punishment2(action)
+        punishment = -1* dist / 634.113554  #normalizing
+        #punishment = self._calculate_punishment2(action)
 
         obs=np.concatenate((self.agent.get_pos(), self.goal))
 
         #print('punishment: ', punishment)
-        # print('goal pos: ', self.goal)
-        # print('agent pos: ', self.agent.get_pos())
+        #print('goal pos: ', self.goal)
+        #print('agent pos: ', self.agent.get_pos())
         return obs, punishment + reward, done, {}
 
     def render(self, mode='human'):

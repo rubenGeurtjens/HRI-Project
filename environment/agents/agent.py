@@ -4,7 +4,7 @@ from math import sqrt
 class agent(ABC):
     """
     Abstract class for the agent.
-    Is used in the human controlled agent and PPO-agent
+    Is used in the force controlled agent and PPO-agent
     """
     def __init__(self, pos,size):
         self.pos = pos 

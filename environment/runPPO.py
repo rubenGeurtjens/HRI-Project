@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     PPO = ppo.PPO(policy,opt,batch_size,nupdates,coeff_entropy,clip_value)
 
-    save_weights = False# True 
+    save_weights = False  
     load_policy = False
 
     path = 'environment/models/'
@@ -31,9 +31,7 @@ if __name__ == '__main__':
         print("loading policy")
         policy.load_state_dict(torch.load(path + agent_name+'.pth'))
 
-
     for epoch in range(1, max_epochs+1):
-
         should_render = True#epoch % 200 == 0
 
         observations, actions, logprobs, returns, values, rewards = PPO.generate_episode(env, n_steps, should_render=should_render)
