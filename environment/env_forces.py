@@ -3,6 +3,7 @@ from agents import manualAgent, ppoAgent, greedyAgent
 import numpy as np
 from boids import Boid
 import math
+from pygame.math import Vector2
 
 class env():
 
@@ -114,6 +115,7 @@ class env():
 
             if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
                 boid.reached_goal(goalX + 10, goalY + 10)
+                boid.position = Vector2(np.inf, np.inf)
 
             else:
                 dx = goalX - x
