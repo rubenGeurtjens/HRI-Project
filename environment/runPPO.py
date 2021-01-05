@@ -21,11 +21,11 @@ if __name__ == '__main__':
 
     PPO = ppo.PPO(policy,opt,batch_size,nupdates,coeff_entropy,clip_value)
 
-    save_weights = True  
+    save_weights = True   
     load_policy = False
 
     path = 'models/'
-    agent_name = 'with_one_boid'
+    agent_name = 'with_two_moving_boids'
 
     if load_policy:
         print("loading policy")

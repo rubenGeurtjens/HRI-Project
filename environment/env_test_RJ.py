@@ -14,6 +14,7 @@ class env():
 
         self.nr_crowds = 3
         self.goals = [(100, 30), (500, 30), (100, 370), (500, 370)]
+        self.objects = [[110,40], [80,30]]
 
     def step(self, action):
         """
@@ -30,8 +31,8 @@ class env():
         done = False
         reward = 0
 
-        for crowd in self.crowds:
-            self.boid(crowd)
+        #for crowd in self.crowds:
+        #    self.boid(crowd)
 
         self.agent.step(action)
 
@@ -44,7 +45,7 @@ class env():
         if dist < 25:
             print('finished')
             done = True
-            reward = 500
+            reward = 200
         
         punishment = self._get_punish_boids(action)
 
@@ -68,7 +69,7 @@ class env():
 
         pygame.display.update()
         
-        self.clock.tick(20)
+        #self.clock.tick(60)
 
     def reset(self):
         """
@@ -86,7 +87,7 @@ class env():
         
         boids_pos = np.asarray([boid.position for crowd in self.crowds for boid in crowd])
         obs = np.concatenate((self.agent.get_pos(), self.goal))
-        obs=np.concatenate((obs, self._get_closest_pos()))
+        obs = np.concatenate((obs, self._get_closest_pos()))
         return obs
 
     def _get_punish_no_boids(self, action):
@@ -103,8 +104,9 @@ class env():
     def _get_punish_boids(self, action):
         reward = self._get_punish_no_boids(action)
         dist = self._get_closest_boid()
-        if dist < 3:
-            reward -= 0.5
+        if dist <= 10:
+            reward -= 50
+            print('punished')
         return reward 
 
     def _get_closest_boid(self):
@@ -124,37 +126,52 @@ class env():
             if self.agent.dist_goal(pos, self.agent.pos) < min_dist:
                 min_dist = self.agent.dist_goal(pos, self.agent.pos)
                 closest = pos 
-        return np.asarray(closest)
+        return np.asarray(closest,dtype='int32')
 
+    # def _make_crowd(self):
+    #     self.crowds = []
+
+    #     variance_from_line = 300
+    #     for _ in range(self.nr_crowds):
+    #         r = np.random.randint(4)
+    #         x, y = self.goals[r]
+
+    #         if r == 0:
+    #             x = np.random.randint(self.size[0])
+    #             y = np.random.randint(y-variance_from_line, y+variance_from_line)
+            
+    #         if r == 1:
+    #             x = np.random.randint(x-variance_from_line, x+variance_from_line)
+    #             y = np.random.randint(self.size[1])
+        
+    #         if r == 2:
+    #             x = np.random.randint(self.size[0])
+    #             y = np.random.randint(y-variance_from_line, y+variance_from_line)
+
+    #         if r == 3:
+    #             x = np.random.randint(x-variance_from_line, x+variance_from_line)
+    #             y = np.random.randint(self.size[1])
+
+
+    #         goal = np.random.randint(4)
+    #         new_crowd = [Boid(np.random.randint(x, x+100), np.random.randint(y,y+100), self.size[0], self.size[1], goal) for _ in range(10)]
+    #         self.crowds.append(new_crowd)
+    
     def _make_crowd(self):
         self.crowds = []
+        a=np.random.randint(2)
+        x = np.random.randint(-25,25)
+        y = np.random.randint(-10,10)
+        b = Boid(130+x,70+y,10,10,1)
+        c = Boid(80,30,10,10,1)
+        self.crowds.append([b])
 
-        variance_from_line = 300
-        for _ in range(self.nr_crowds):
-            r = np.random.randint(4)
-            x, y = self.goals[r]
-
-            if r == 0:
-                x = np.random.randint(self.size[0])
-                y = np.random.randint(y-variance_from_line, y+variance_from_line)
-            
-            if r == 1:
-                x = np.random.randint(x-variance_from_line, x+variance_from_line)
-                y = np.random.randint(self.size[1])
-        
-            if r == 2:
-                x = np.random.randint(self.size[0])
-                y = np.random.randint(y-variance_from_line, y+variance_from_line)
-
-            if r == 3:
-                x = np.random.randint(x-variance_from_line, x+variance_from_line)
-                y = np.random.randint(self.size[1])
-
-
-            goal = np.random.randint(4)
-            new_crowd = [Boid(np.random.randint(x, x+100), np.random.randint(y,y+100), self.size[0], self.size[1], goal) for _ in range(10)]
-            self.crowds.append(new_crowd)
-
+        a=np.random.randint(2)
+        x = np.random.randint(-50,50)
+        y = np.random.randint(-50,50)
+        b = Boid(200+x, 60+y,10,10,1)
+        c = Boid(80,30,10,10,1)
+        self.crowds.append([b])
 
 
     def boid(self, crowd):
@@ -194,4 +211,4 @@ class env():
         for crowd in self.crowds:
             for boid in crowd:
                 person = boid.position
-                pygame.draw.circle(self.screen, (0,0,255), person, 3)
+                pygame.draw.circle(self.screen, (0,0,255), person, 10)
