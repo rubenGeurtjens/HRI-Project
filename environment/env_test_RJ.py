@@ -159,18 +159,19 @@ class env():
     
     def _make_crowd(self):
         self.crowds = []
-        a=np.random.randint(2)
         x = np.random.randint(-25,25)
         y = np.random.randint(-10,10)
         b = Boid(130+x,70+y,10,10,1)
-        c = Boid(80,30,10,10,1)
         self.crowds.append([b])
 
-        a=np.random.randint(2)
         x = np.random.randint(-50,50)
         y = np.random.randint(-50,50)
         b = Boid(200+x, 60+y,10,10,1)
-        c = Boid(80,30,10,10,1)
+        self.crowds.append([b])
+
+        x = np.random.randint(-50,50)
+        y = np.random.randint(-50,50)
+        b = Boid(80+x, 60+y,10,10,1)
         self.crowds.append([b])
 
 
