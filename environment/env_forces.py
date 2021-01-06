@@ -8,13 +8,10 @@ from pygame.math import Vector2
 class env():
 
     def __init__(self):
-        self.screen  = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-
-        info = pygame.display.Info()
-        screen_width,screen_height = info.current_w,info.current_h
-        self.size = [screen_width, screen_height]
+        
+        self.size = [500, 500]
         self.agent = greedyAgent.greedyAgent([200,300],[3,3], 50,20)
-        self.setup = False
+        self.setup = True
         self.clock = pygame.time.Clock()
         self.objects = [[100,100], [self.size[0]-100,100], [self.size[0]-100,self.size[1]-100], [100,self.size[1]-100],[100,280]]
 
@@ -74,8 +71,8 @@ class env():
         Used to render the screen
         """
         if self.setup:
-            self.screen  = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-            #self.screen = pygame.display.set_mode((self.size[0], self.size[1]))
+            #self.screen  = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+            self.screen = pygame.display.set_mode((self.size[0], self.size[1]))
             self.setup = False
 
         self.screen.fill((0,0,0))
