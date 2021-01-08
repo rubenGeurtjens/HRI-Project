@@ -13,7 +13,7 @@ class env():
         self.agent = greedyAgent.greedyAgent([200,300],[3,3], 50,20)
         self.setup = True
         self.clock = pygame.time.Clock()
-        self.objects = [[100,100], [self.size[0]-100,100], [self.size[0]-100,self.size[1]-100], [100,self.size[1]-100],[100,280]]
+        #self.objects = [[100,100], [self.size[0]-100,100], [self.size[0]-100,self.size[1]-100], [100,self.size[1]-100],[100,280]]
 
         self.nr_crowds = 50
         self.goals = [[100,100], [self.size[0]-100,100], [self.size[0]-100,self.size[1]-100], [100,self.size[1]-100]]
@@ -171,8 +171,6 @@ class env():
             x,y = goal
             rec = pygame.Rect(x-10,y-10,20,20)
             pygame.draw.rect(self.screen, (0,100,0), rec)
-
-
         x,y = self.goal
         rec = pygame.Rect(x-10,y-10,20,20)
         pygame.draw.rect(self.screen, (0,255,0), rec)

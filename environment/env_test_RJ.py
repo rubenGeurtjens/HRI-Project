@@ -49,6 +49,11 @@ class env():
         
         punishment = self._get_punish_boids(action)
 
+        if self._get_closest_boid() <= 10:
+            print('collision')
+            reward = -1000 
+            done = True  
+
         boids_pos = np.asarray([boid.position for crowd in self.crowds for boid in crowd])
         obs = np.concatenate((self.agent.get_pos(), self.goal))
         obs=np.concatenate((obs, self._get_closest_pos()))
@@ -106,7 +111,6 @@ class env():
         dist = self._get_closest_boid()
         if dist <= 10:
             reward -= 50
-            print('punished')
         return reward 
 
     def _get_closest_boid(self):
@@ -171,7 +175,7 @@ class env():
 
         x = np.random.randint(-50,50)
         y = np.random.randint(-50,50)
-        b = Boid(80+x, 60+y,10,10,1)
+        b = Boid(40+x, 90+y,10,10,1)
         self.crowds.append([b])
 
 
