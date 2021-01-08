@@ -4,22 +4,24 @@ import csv
 if __name__ == '__main__':
     env = env_QLearning.env()
     obs = env.reset()
-    filename = 'qLearning_agent.csv'
+    filename = 'qLearning_agent_5_crowds.csv'
     with open(filename, 'a') as f:
                 writer = csv.writer(f)
                 writer.writerow(['run', 'steps', 'collisions', 'intimate', 'close intimate', 'person', 'social', 'public'])
 
     nr_steps = 0
-    nr_finishes = 0
-    max_finishes = 1000
+    nr_finishes = 243
+    max_finishes = 500
 
-    while True:
+    while nr_finishes < max_finishes:
+        nr_steps += 1
         if env.skip_frame:
             action = env.prev_action
         else:
             action = env.agent.generateMove(obs)
         obs, _, done, _  = env.step(action)
         #env.render()
+
         if done:
             with open(filename, 'a') as f:
                 writer = csv.writer(f)
