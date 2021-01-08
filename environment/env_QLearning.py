@@ -24,6 +24,16 @@ class env():
         self.prev_action = 0 #used to store previous action
         self.count = 0 #used to determine when to skip a frame(speed up q-learning)
 
+
+        #checking social distance
+        self.nr_collisions = 0
+        self.nr_intimate_zone = 0
+        self.nr_close_intimate_zone = 0
+        self.nr_personal_zone = 0
+        self.nr_social_zone = 0
+        self.nr_public_zone = 0
+
+
     def step(self, action):
         """
         Performs one update step
@@ -50,29 +60,40 @@ class env():
         close_x,close_y = self._get_closest_pos()
         
         use_small = (abs(x-x2) <= self.block_size and abs(y-y2) <= self.block_size) or (abs(x-close_x) <= self.block_size and abs(y-close_y) <= self.block_size)
-
-       # print((abs(x-x2) and abs(y-y2) <= self.block_size))
-
+        use_small = True
         if use_small:
-            print('small view')
             self.skip_frame =  False
             self.agent.iterations = 800
-        else:
-            print('big view')
-            self.skip_frame =  self.count % 2 == 0
-            self.agent.iterations = 200
 
-
-        if use_small:
             self.agent.set_q_table(2*self.close_view+1)
             obs = np.zeros((2*self.close_view+1,2*self.close_view+1)) #look at every dicrection close_view pixels
             obs = self._add_persons_small(obs)
             obs = self._add_goal_small(obs)
         else:
+            self.skip_frame =  self.count % 2 == 0
+            self.agent.iterations = 200
+
             self.agent.set_q_table(self.nr_blocks*2+1)
             obs = np.zeros((2*self.nr_blocks+1, 2*self.nr_blocks+1))
             obs = self._add_persons_large(obs)
             obs = self._add_goal_large(obs)
+
+        persons = [boid.position for crowd in self.crowds for boid in crowd]
+
+        for person in persons:
+            dist = self.agent.dist_goal(person,self.agent.pos)
+            if dist == 0:
+                self.nr_collisions+=1
+            elif dist <= 3:
+                self.nr_intimate_zone += 1
+            elif dist <= 9:
+                self.nr_close_intimate_zone += 1
+            elif dist <= 24:
+                self.nr_personal_zone += 1
+            elif dist <= 72:
+                self.nr_social_zone += 1
+            elif dist < 2000:
+                self.nr_public_zone += 1
 
         self.count += 1
         self.prev_action = action
@@ -103,6 +124,16 @@ class env():
         returns:
         initial observation
         """
+
+        self.nr_collisions = 0
+        self.nr_intimate_zone = 0
+        self.nr_close_intimate_zone = 0
+        self.nr_personal_zone = 0
+        self.nr_social_zone = 0
+        self.nr_public_zone = 0
+
+
+
         self.make_crowd()
         self.count = 0
         

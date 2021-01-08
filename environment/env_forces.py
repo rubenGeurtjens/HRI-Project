@@ -15,8 +15,16 @@ class env():
         self.clock = pygame.time.Clock()
         #self.objects = [[100,100], [self.size[0]-100,100], [self.size[0]-100,self.size[1]-100], [100,self.size[1]-100],[100,280]]
 
-        self.nr_crowds = 40
+        self.nr_crowds = 5
         self.goals = [[100,100], [self.size[0]-100,100], [self.size[0]-100,self.size[1]-100], [100,self.size[1]-100]]
+
+        #checking social distance
+        self.nr_collisions = 0
+        self.nr_intimate_zone = 0
+        self.nr_close_intimate_zone = 0
+        self.nr_personal_zone = 0
+        self.nr_social_zone = 0
+        self.nr_public_zone = 0
 
     def step(self, action):
         """
@@ -44,20 +52,29 @@ class env():
 
         dist = self.agent.dist_goal(self.goal)
 
-        if dist < 20:
-            print('finished!!!!')
-            done = True
-    
+        done = dist < 1
+
         persons = [boid.position for crowd in self.crowds for boid in crowd]
 
         min_dist = np.inf
         for person in persons:
             if self.agent.dist_goal(person, self.agent.pos) < min_dist:
                 min_dist = self.agent.dist_goal(person, self.agent.pos)
-
-        if min_dist < 2:
-            print("collision!!!")
-            done = True
+        
+        for person in persons:
+            dist = self.agent.dist_goal(person,self.agent.pos)
+            if dist == 0:
+                self.nr_collisions+=1
+            elif dist <= 3:
+                self.nr_intimate_zone += 1
+            elif dist <= 9:
+                self.nr_close_intimate_zone += 1
+            elif dist <= 24:
+                self.nr_personal_zone += 1
+            elif dist <= 72:
+                self.nr_social_zone += 1
+            elif dist < 2000:
+                self.nr_public_zone += 1
 
         #create observations
         obs = [self.goal, persons]
@@ -91,6 +108,16 @@ class env():
         returns:
         initial observation
         """
+
+        self.nr_collisions = 0
+        self.nr_intimate_zone = 0
+        self.nr_close_intimate_zone = 0
+        self.nr_personal_zone = 0
+        self.nr_social_zone = 0
+        self.nr_public_zone = 0
+
+
+
         self.agent.pos = [self.size[0]/2, self.size[1]/2]
 
         x = np.random.randint(4)
@@ -105,7 +132,6 @@ class env():
     
     def boid(self, crowd):
         for boid in crowd:
-
             # Vector from me to cursor
             goalX, goalY = self.goals[boid.goalNr]
             x, y = boid.position
@@ -135,7 +161,7 @@ class env():
     def make_crowd(self):
         self.crowds = []
 
-        variance_from_line = 100
+        variance_from_line = 50
         for _ in range(self.nr_crowds):
             r = np.random.randint(4)
             x, y = self.goals[r]
