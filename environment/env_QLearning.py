@@ -6,9 +6,7 @@ import math
 from pygame.math import Vector2
 
 class env():
-
     def __init__(self):
-        
         self.size = [500, 500]
         self.setup = True
         self.clock = pygame.time.Clock()
@@ -16,10 +14,10 @@ class env():
         self.goal = [200,200]
         self.close_view = 3
         self.block_size = 20 #pixels per block
-        self.nr_blocks = 2 #number of blocks on each side of the agent 
+        self.nr_blocks = 3 #number of blocks on each side of the agent 
         self.agent = QLearningAgent.QLearningAgent([114,35],[3,3], 2*self.close_view+1)
         #boids
-        self.nr_crowds = 4
+        self.nr_crowds = 6
         self.goals = [[100,100], [self.size[0]-100,100], [self.size[0]-100,self.size[1]-100], [100,self.size[1]-100]]
 
         self.skip_frame = False #only true when count % modulo 2 == 0
@@ -50,11 +48,14 @@ class env():
         x2,y2 = self.goal
 
         close_x,close_y = self._get_closest_pos()
-        print(close_x,close_y)
-        use_small = (abs(x-x2) and abs(y-y2) <= self.block_size) or (abs(x-close_x) < self.block_size and abs(y-close_y) < self.block_size)
+        
+        use_small = (abs(x-x2) <= self.block_size and abs(y-y2) <= self.block_size) or (abs(x-close_x) <= self.block_size and abs(y-close_y) <= self.block_size)
+
+       # print((abs(x-x2) and abs(y-y2) <= self.block_size))
 
         if use_small:
             print('small view')
+            self.skip_frame =  False
             self.agent.iterations = 800
         else:
             print('big view')
@@ -133,7 +134,6 @@ class env():
             if self.agent.dist_goal(pos, self.agent.pos) < min_dist:
                 min_dist = self.agent.dist_goal(pos, self.agent.pos)
                 closest = pos 
-        print(closest)
         return np.asarray(closest,dtype='int32')
 
 
@@ -293,7 +293,7 @@ class env():
 
             if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
                 boid.reached_goal(goalX + 10, goalY + 10)
-                boid.position = Vector2(-1000, -1000)
+                boid.position = Vector2(-100000, -100000)
 
             else:
                 dx = goalX - x

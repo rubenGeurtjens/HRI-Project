@@ -15,7 +15,7 @@ class env():
         self.clock = pygame.time.Clock()
         #self.objects = [[100,100], [self.size[0]-100,100], [self.size[0]-100,self.size[1]-100], [100,self.size[1]-100],[100,280]]
 
-        self.nr_crowds = 50
+        self.nr_crowds = 40
         self.goals = [[100,100], [self.size[0]-100,100], [self.size[0]-100,self.size[1]-100], [100,self.size[1]-100]]
 
     def step(self, action):
@@ -112,7 +112,7 @@ class env():
 
             if (goalX + 10  >= x >= goalX - 10) and (goalY + 10  >= y >= goalY - 10):
                 boid.reached_goal(goalX + 10, goalY + 10)
-                boid.position = Vector2(np.inf, np.inf)
+                boid.position = Vector2(-10000000, -10000000)
 
             else:
                 dx = goalX - x
@@ -135,7 +135,7 @@ class env():
     def make_crowd(self):
         self.crowds = []
 
-        variance_from_line = 300
+        variance_from_line = 100
         for _ in range(self.nr_crowds):
             r = np.random.randint(4)
             x, y = self.goals[r]

@@ -14,9 +14,9 @@ class QLearningAgent(agents.agent.agent):
         self.dim = dim
 
         #hyperparamaters
-        self.alpha = 0.1
+        self.alpha = 0.3
         self.gamma = 0.6
-        self.epsilon = 0.3
+        self.epsilon = 0.1
 
         self.iterations = 1000
 
