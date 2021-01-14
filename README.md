@@ -16,9 +16,10 @@ Runs in actor critic mode. Both the actor and critic have a small MLP(4 layers).
 We have 2 different modes of q-learning
 1. Big view: if there are no persons within a predifined distance
 2. Small view: if there is a person or goal within a predifined distance 
+
 When in big view the agent is able to see more, since each cell in the observation spans multiple pixels. In small view the agent is able to see less far, but every cell is one pixel, meaning it can make very precise movement to avoid people. 
 
-Since the environment is dynamic it is slow, since we need to recompute the q-table every step. There are a variety of ways we can speed it up. We tried to skip frames when in "big view mode", which means the agent will repeat the same action as it previously did if no persons are within its big view. Some other thing we haven't done, but could help are to carefully construct the observations, which can help with making the q-table converge faster.
+Because the environment is dynamic it is slow, since we need to recompute the q-table every step. There are a variety of ways we can speed it up. We tried to skip frames when in "big view mode", which means the agent will repeat the same action as it previously did if no persons are within its big view. Some other thing we haven't done, but could help are to carefully construct the observations, which can help with making the q-table converge faster.
 
 ## Vector agent
 Constant vector which pushes the agent towards the goal. The person that is closest to the agent gives a repelling force, which causes it to change its movement. 
