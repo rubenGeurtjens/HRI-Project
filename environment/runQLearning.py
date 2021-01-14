@@ -1,4 +1,4 @@
-import env_QLearning
+from environments import env_QLearning
 import csv 
 
 if __name__ == '__main__':
@@ -20,13 +20,13 @@ if __name__ == '__main__':
         else:
             action = env.agent.generateMove(obs)
         obs, _, done, _  = env.step(action)
-        #env.render()
+        env.render()
 
         if done:
-            with open(filename, 'a') as f:
-                writer = csv.writer(f)
-                writer.writerow([nr_finishes, nr_steps, env.nr_collisions, env.nr_intimate_zone, \
-                    env.nr_close_intimate_zone, env.nr_personal_zone, env.nr_social_zone, env.nr_public_zone])
+            #with open(filename, 'a') as f:
+                # writer = csv.writer(f)
+                # writer.writerow([nr_finishes, nr_steps, env.nr_collisions, env.nr_intimate_zone, \
+                #     env.nr_close_intimate_zone, env.nr_personal_zone, env.nr_social_zone, env.nr_public_zone])
             nr_finishes += 1
             nr_steps = 0
 

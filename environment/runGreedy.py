@@ -1,16 +1,16 @@
-import env_forces
+from environments import env_forces
 import torch 
 import csv
 
 if __name__ == '__main__':
-    filename = 'forces_agent.csv'
+    filename = 'forces_agent_10_crowds.csv'
     with open(filename, 'a') as f:
-                writer = csv.writer(f)
-                writer.writerow(['run', 'steps', 'collisions', 'intimate', 'close intimate', 'person', 'social', 'public'])
+               writer = csv.writer(f)
+               writer.writerow(['run', 'steps', 'collisions', 'intimate', 'close intimate', 'person', 'social', 'public'])
 
     nr_steps = 0
     nr_finishes = 0
-    max_finishes = 1000
+    max_finishes = 499
     env = env_forces.env()
     obs = env.reset()
     while nr_finishes < max_finishes:

@@ -1,4 +1,4 @@
-import env_test_RJ
+from environments import env_ppo
 from agents.PPO import ActorCritic, ppo
 from torch.optim import Adam
 import torch 
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     max_epochs = 4000
     clip_value = 0.2
 
-    env = env_test_RJ.env()
+    env = env_ppo.env()
     policy = ActorCritic.MLP(6, 1).cuda()
     opt = Adam(policy.parameters(), lr=lr)
 

@@ -182,6 +182,9 @@ class PPO():
         return observations, actions, logprobs, returns, values, rewards
 
     def n_step_return(self, dones, rewards, last_value, gamma):
+        """
+        Calculates advantage
+        """
         returns = np.zeros(rewards.shape[0] + 1)
         returns[-1] = last_value
         for i in reversed(range(len(rewards))):

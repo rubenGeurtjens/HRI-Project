@@ -25,6 +25,11 @@ class QLearningAgent(agents.agent.agent):
         self.update_pos(move)
 
     def generateMove(self, obs):
+        """
+        Creates and updates the q-table, after which it picks the best value
+        obs: matrix with 1 if goal, -1 if person and 0 otherwise
+        returns: Best value according to the q-table
+        """
         #obs = matrix van nullen en +1 als het goal is en -1 als het vijand is
         self.q_table = np.zeros([21*21, 4]) #20x20 pixels and 4 actions 
         for i in range(self.iterations): #training cycles 
@@ -35,8 +40,8 @@ class QLearningAgent(agents.agent.agent):
             nr_steps = 0
             while not done:
                 state = x*(self.dim-1) + y
-                if random.uniform(0,1) < self.epsilon:
-                    action = np.random.randint(4)
+                if random.uniform(0,1) < self.epsilon: #force exploring by sometimes picking a random action
+                    action = np.random.randint(4) 
                 else:
                     is_all_zero = np.all((self.q_table[state] == 0))
                     if is_all_zero:
@@ -71,9 +76,9 @@ class QLearningAgent(agents.agent.agent):
                 done = obs[x,y] == 1 or nr_steps >= max_steps
 
         action = np.argmax(self.q_table[startX*(self.dim-1) + startY])  
-        #print(f'action: {action} {np.random.randint(1000)}')      
-        if action == 0:
-            return [-1,0]
+        #return correct action according to move
+        if action == 0: 
+            return [-1,0] #x-1 and y doesn't change. Corresponds to moving left
         elif action == 1:
             return [0,-1]
         elif action == 2:
@@ -82,5 +87,8 @@ class QLearningAgent(agents.agent.agent):
             return [0,1]
 
     def set_q_table(self, dim):
+        """
+        Change dimension of q-table, when switching from close view to big view. 
+        """
         self.q_table = np.zeros((dim,dim))
         self.dim = dim

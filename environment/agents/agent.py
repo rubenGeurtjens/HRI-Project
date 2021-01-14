@@ -25,6 +25,9 @@ class agent(ABC):
         return self.size
 
     def dist_goal(self, goal_pos , pos = []):
+        """
+        Calculates the euclidean distance to "goal_pos" from a given pos. 
+        """
         if pos == []:
             pos = self.pos
         x,y = pos

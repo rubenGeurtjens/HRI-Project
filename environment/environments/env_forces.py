@@ -1,5 +1,5 @@
 import pygame
-from agents import manualAgent, ppoAgent, greedyAgent
+from agents import greedyAgent
 import numpy as np
 from boids import Boid
 import math
@@ -15,7 +15,7 @@ class env():
         self.clock = pygame.time.Clock()
         #self.objects = [[100,100], [self.size[0]-100,100], [self.size[0]-100,self.size[1]-100], [100,self.size[1]-100],[100,280]]
 
-        self.nr_crowds = 5
+        self.nr_crowds = 10
         self.goals = [[100,100], [self.size[0]-100,100], [self.size[0]-100,self.size[1]-100], [100,self.size[1]-100]]
 
         #checking social distance

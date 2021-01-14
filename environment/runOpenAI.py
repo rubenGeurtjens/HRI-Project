@@ -1,4 +1,4 @@
-import env_OPENAI
+from environments import env_OPENAI
 
 import gym
 import math
